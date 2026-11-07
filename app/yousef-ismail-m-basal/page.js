@@ -157,10 +157,16 @@ export default function Landing() {
                 <blockquote>“{r.text}”</blockquote>
                 <figcaption>{r.name}</figcaption>
               </figure>
-            )) : [0, 1, 2].map((k) => (
-              <figure key={k} className="l-review l-review-empty">
-                <div className="l-review-imgs"><div className="l-ph">Student photo</div><div className="l-ph">Licence card</div></div>
-                <blockquote>Success stories from our students will appear here.</blockquote>
+            )) : SITE.sampleReviews.map((r) => (
+              <figure key={r.name} className="l-review">
+                <span className="l-sample">Sample</span>
+                <div className="l-review-imgs">
+                  <SampleSelfie {...r} />
+                  <SampleLicence {...r} />
+                </div>
+                <div className="l-stars" aria-label="5 out of 5">★★★★★</div>
+                <blockquote>“{r.text}”</blockquote>
+                <figcaption>{r.name}</figcaption>
               </figure>
             ))}
           </div>
@@ -221,5 +227,43 @@ export default function Landing() {
         </div>
       </footer>
     </div>
+  );
+}
+
+// Illustrated placeholders for sample reviews (not real people or documents).
+function SampleSelfie({ skin, hair, shirt }) {
+  return (
+    <svg viewBox="0 0 120 160" className="l-illu" role="img" aria-label="Illustrated student photo">
+      <rect width="120" height="160" fill="#e9eef2" />
+      <rect x="0" y="110" width="120" height="50" fill="#d6dde3" />
+      <path d="M18 160 q42 -60 84 0z" fill={shirt} />
+      <rect x="52" y="92" width="16" height="16" fill={skin} />
+      <ellipse cx="60" cy="72" rx="24" ry="28" fill={skin} />
+      <path d="M36 66 q2 -30 24 -30 q22 0 24 30 q-6 -14 -24 -16 q-18 2 -24 16z" fill={hair} />
+      <circle cx="51" cy="74" r="2.6" fill="#222" /><circle cx="69" cy="74" r="2.6" fill="#222" />
+      <path d="M50 86 q10 9 20 0" stroke="#222" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+      <rect x="80" y="104" width="30" height="20" rx="3" fill="#fff" stroke="#111" strokeWidth="1.5" transform="rotate(-12 95 114)" />
+      <rect x="84" y="108" width="8" height="10" fill="#cfd8dc" transform="rotate(-12 95 114)" />
+    </svg>
+  );
+}
+function SampleLicence({ skin, hair }) {
+  return (
+    <svg viewBox="0 0 120 160" className="l-illu" role="img" aria-label="Illustrated licence card">
+      <rect width="120" height="160" fill="#f2f2f2" />
+      <g transform="translate(10 50)">
+        <rect width="100" height="64" rx="7" fill="#fff" stroke="#111" strokeWidth="1.5" />
+        <rect width="100" height="14" rx="7" fill="#111" /><rect y="7" width="100" height="7" fill="#111" />
+        <text x="50" y="10" fontSize="6.5" textAnchor="middle" fill="#fff" fontWeight="700" letterSpacing=".5">DRIVING LICENCE</text>
+        <rect x="7" y="20" width="26" height="34" rx="3" fill="#e9eef2" />
+        <ellipse cx="20" cy="34" rx="7" ry="8" fill={skin} /><path d="M13 32 q1 -9 7 -9 q6 0 7 9 q-3 -5 -7 -5 q-4 0 -7 5z" fill={hair} />
+        <path d="M10 54 q10 -12 20 0z" fill="#90a4ae" />
+        <rect x="40" y="22" width="52" height="5" rx="2.5" fill="#cfd8dc" />
+        <rect x="40" y="32" width="40" height="5" rx="2.5" fill="#cfd8dc" />
+        <rect x="40" y="42" width="46" height="5" rx="2.5" fill="#cfd8dc" />
+        <text x="92" y="60" fontSize="6" textAnchor="end" fill="#999">SAMPLE</text>
+      </g>
+      <circle cx="96" cy="40" r="12" fill="#111" /><path d="M90 40 l4 4 8 -9" stroke="#fff" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+    </svg>
   );
 }

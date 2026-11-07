@@ -464,3 +464,8 @@ body:has(.l-page){background:#fff}
 .l-foot{border-top:1px solid #222;background:#111;color:#888;font-size:13px;padding:20px 0}
 .l-foot-in{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .l-form{position:relative}.l-form input.hp{width:1px;height:1px;padding:0;border:0;position:absolute;left:0;top:0}
+.l-review{position:relative}
+.l-illu{width:100%;aspect-ratio:3/4;border-radius:10px;display:block}
+.l-sample{position:absolute;top:22px;left:22px;z-index:2;background:#111;color:#fff;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:3px 10px}
+.l-stars{margin:12px 4px 0;color:#111;letter-spacing:2px;font-size:15px}
+.l-review .l-stars + blockquote{margin-top:6px}
