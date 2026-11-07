@@ -143,7 +143,7 @@ function LangScreen({ onPick }) {
     <div className="instructor">
       <img src={CONFIG.instructorPhoto} alt={CONFIG.teacherName} />
       <div>
-        <p className="ins-label">🚗 Driving Instructor</p>
+        <p className="ins-label">Driving Instructor</p>
         <h2>{CONFIG.teacherName}</h2>
         <p className="ins-code">Instructor Code <b>{CONFIG.instructorCode}</b></p>
       </div>
