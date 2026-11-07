@@ -349,10 +349,7 @@ export function Roundabout({ U, onTap }) {
       <circle cx={CX} cy={CY} r="34" fill={GRASS} stroke="#fff" strokeWidth="3" />
       <rect x={CX - 1.5} y={CY + 92} width="3" height="60" fill="#ffeb3b" />
       <path d={`M${CX + 2} ${CY + 92} h28`} stroke="#fff" strokeWidth="3" strokeDasharray="5 4" />
-      {[["1", CX + 140, CY + 40], ["2", CX + 40, 14], ["3", 14, CY - 40], ["4", CX - 40, 290]].map(([n, x, y]) => (
-        <g key={n}><circle cx={x} cy={y} r="11" fill="#fff" /><text x={x} y={y + 4} fontSize="12" textAnchor="middle" fontWeight="800">{n}</text></g>))}
       <Car x={CX - 120} y={CY - 14} r={90} color="#90caf9" />
-      <path d="M20 120 l14 -6 v12z" fill="#fff" />
       <g className={`hs ${!route ? "on" : ""}`} onClick={() => onTap(0)} role="button">
         <circle cx={CX - 80} cy={CY - 52} r="22" className="hs-ring" /><circle cx={CX - 80} cy={CY - 52} r="13" className="hs-dot" />
         <text x={CX - 80} y={CY - 47} textAnchor="middle" className="hs-num">!</text>
