@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { I18N } from "@/lib/i18n";
 import { REG } from "@/lib/reg-i18n";
 import { UI } from "@/lib/ui-i18n";
+import { HUB } from "@/lib/hub-i18n";
 import { CONFIG } from "@/lib/config";
 import Art from "@/components/Art";
 import Register from "@/components/Register";
@@ -21,21 +22,28 @@ const store = {
 
 // The guided journey, in order.
 const FLOW = [
-  "welcome", ...[0, 1, 2, 3, 4, 5, 6].map((i) => `step${i}`), "costs", "docs", "register",
+  "welcome", ...[0, 1, 2, 3, 4, 5, 6].map((i) => `step${i}`), "govfees", "insfees", "docs", "register",
   "learn", ...[0, 1, 2, 3, 4, 5, 6, 7].map((i) => `lesson${i}`), "quiz", "finish",
 ];
-const PART1_END = FLOW.indexOf("register"), PART2_END = FLOW.indexOf("lesson7");
+// Single-topic paths opened from the hub; at the end they return to the hub.
+const CATS = {
+  process: [0, 1, 2, 3, 4, 5, 6].map((i) => `step${i}`),
+  gov: ["govfees"], ins: ["insfees"], docs: ["docs"],
+  lessons: ["learn", ...[0, 1, 2, 3, 4, 5, 6, 7].map((i) => `lesson${i}`)],
+  quiz: ["quiz"], register: ["register"], map: ["schoolmap"],
+};
 
 export default function Home() {
   const [lang, setLangState] = useState(null);
-  const [screen, setScreen] = useState("lang"); // "lang" | "map" | FLOW item
+  const [screen, setScreen] = useState("lang"); // "lang" | "hub" | "map" | FLOW item
+  const [mode, setMode] = useState("full"); // "full" or a CATS key
   const [maxPos, setMaxPos] = useState(0);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const saved = store.get("lang", null);
     setMaxPos(store.get("maxPos", 0));
-    if (saved && I18N[saved]) { setLangState(saved); setScreen(store.get("maxPos", 0) > 0 ? "map" : "welcome"); }
+    if (saved && I18N[saved]) { setLangState(saved); setScreen("hub"); }
     setReady(true);
   }, []);
   useEffect(() => {
@@ -44,21 +52,23 @@ export default function Home() {
     document.documentElement.dir = I18N[lang].dir;
   }, [lang]);
 
-  const show = (s) => {
-    setScreen(s); window.scrollTo(0, 0);
+  const show = (s, m = mode) => {
+    setScreen(s); setMode(m); window.scrollTo(0, 0);
     const p = FLOW.indexOf(s);
-    if (p > maxPos) { setMaxPos(p); store.set("maxPos", p); }
+    if (m === "full" && p > maxPos) { setMaxPos(p); store.set("maxPos", p); }
   };
-  const next = () => show(FLOW[Math.min(FLOW.length - 1, FLOW.indexOf(screen) + 1)]);
-  const prev = () => { const p = FLOW.indexOf(screen); p > 0 ? show(FLOW[p - 1]) : show("map"); };
-  const setLang = (code) => { setLangState(code); store.set("lang", code); show(maxPos > 0 ? "map" : "welcome"); };
+  const seq = mode === "full" ? FLOW : CATS[mode];
+  const next = () => { const p = seq.indexOf(screen); p >= 0 && p < seq.length - 1 ? show(seq[p + 1]) : show("hub"); };
+  const prev = () => { const p = seq.indexOf(screen); p > 0 ? show(seq[p - 1]) : show("hub"); };
+  const openCat = (k) => show(CATS[k][0], k);
+  const setLang = (code) => { setLangState(code); store.set("lang", code); show("hub", "full"); };
 
   if (!ready) return null;
   if (!lang || screen === "lang") return (<><Header /><main><LangScreen onPick={setLang} /></main></>);
 
-  const T = I18N[lang], R = REG[lang], U = UI[lang];
+  const T = I18N[lang], R = REG[lang], U = UI[lang], H = HUB[lang];
   const pos = FLOW.indexOf(screen);
-  const ctx = { T, R, U, lang, next, prev, show };
+  const ctx = { T, R, U, H, lang, next, prev, show, mode, seq };
   const Nav = ({ label, onNext = next, back = true }) => (
     <div className="nav">
       {back && <button className="btn" onClick={prev} aria-label={T.ui.back}>{T.dir === "rtl" ? "→" : "←"}</button>}
@@ -68,7 +78,13 @@ export default function Home() {
   ctx.Nav = Nav;
 
   let body;
-  if (screen === "map") body = <JourneyMap {...ctx} maxPos={maxPos} />;
+  if (screen === "hub") body = <Hub {...ctx} maxPos={maxPos} openCat={openCat} />;
+  else if (screen === "map") body = <JourneyMap {...ctx} maxPos={maxPos} />;
+  else if (screen === "schoolmap") body = (<>
+    <h2>🗺️ {H.map}</h2>
+    <img className="media" src="/assets/school-map.jpg" alt={H.map} />
+    <Nav label={H.topics} />
+  </>);
   else if (screen === "welcome") body = (<>
     <Art name="welcome" />
     <div className="card"><h2>{T.welcome.title}</h2><p>{T.welcome.text}</p></div>
@@ -77,12 +93,13 @@ export default function Home() {
   else if (screen.startsWith("step")) {
     const i = +screen.slice(4), s = T.steps[i];
     body = (<>
-      <p className="kicker">{U.part1} · {U.stepOf} {i + 1} {U.of} {T.steps.length}</p>
+      <p className="kicker">{mode === "full" ? U.part1 : H.process} · {U.stepOf} {i + 1} {U.of} {T.steps.length}</p>
       <Art name={`step${i}`} label={s.t} />
       <div className="card"><h3><span className="num">{i + 1}</span>{s.t}</h3><p className="lead">{s.d}</p></div>
       <Nav />
     </>);
-  } else if (screen === "costs") body = <Costs {...ctx} />;
+  } else if (screen === "govfees") body = <GovFees {...ctx} />;
+  else if (screen === "insfees") body = <InsFees {...ctx} />;
   else if (screen === "docs") body = <Docs {...ctx} />;
   else if (screen === "register") body = <RegisterStep {...ctx} />;
   else if (screen === "learn") body = (<>
@@ -98,12 +115,13 @@ export default function Home() {
     <Art name="step6" />
     <div className="card center"><h2>🎉 {U.finish}</h2></div>
     {CONFIG.whatsapp && <a className="btn wa big" href={`https://wa.me/${CONFIG.whatsapp}`} target="_blank" rel="noopener noreferrer">💬 {T.ui.whatsapp}</a>}
-    <button className="btn" onClick={() => show("map")}>🗺️ {U.journey}</button>
+    <button className="btn" onClick={() => show("hub", "full")}>🏠 {H.topics}</button>
   </>);
 
-  const pct = Math.round((Math.max(pos, 0) / (FLOW.length - 1)) * 100);
+  const sp = seq.indexOf(screen);
+  const pct = sp < 0 || seq.length < 2 ? null : Math.round((sp / Math.max(1, seq.length - 1)) * 100);
   return (<>
-    <Header onLang={() => setScreen("lang")} onMap={screen !== "map" ? () => show("map") : null} pct={screen === "map" ? null : pct} />
+    <Header onLang={() => setScreen("lang")} onMap={screen !== "hub" ? () => show("hub", "full") : null} pct={pct} />
     <main>{body}</main>
   </>);
 }
@@ -112,7 +130,7 @@ function Header({ onLang, onMap, pct }) {
   return (
     <header>
       <h1>🚗 Bahrain Driving Licence</h1>
-      {onMap && <button onClick={onMap} aria-label="Journey">🗺️</button>}
+      {onMap && <button onClick={onMap} aria-label="Topics">🏠</button>}
       {onLang && <button onClick={onLang} aria-label="Language">🌐</button>}
       {pct != null && <div className="hbar"><i style={{ width: `${pct}%` }} /></div>}
     </header>
@@ -151,7 +169,8 @@ function JourneyMap({ T, U, show, maxPos }) {
       <div className="path">
         <Item s="welcome" icon="👋" label={T.welcome.title} />
         {T.steps.map((s, i) => <Item key={i} s={`step${i}`} icon={i + 1} label={s.t} />)}
-        <Item s="costs" icon="💰" label={T.menu.costs} />
+        <Item s="govfees" icon="🏛️" label={HUB[Object.keys(I18N).find((k) => I18N[k] === T)].gov} />
+        <Item s="insfees" icon="🚗" label={HUB[Object.keys(I18N).find((k) => I18N[k] === T)].ins} />
         <Item s="docs" icon="🪪" label={T.menu.docs} />
         <Item s="register" icon="📝" label={REG_title(T)} />
       </div>
@@ -170,35 +189,83 @@ function JourneyMap({ T, U, show, maxPos }) {
 }
 const REG_title = (T) => REG[Object.keys(I18N).find((k) => I18N[k] === T)].menu;
 
-function Costs({ T, U, Nav }) {
-  const c = T.costs, u = T.ui, cls = F.hours * F.perHour;
-  const items = [
-    ["👁️", c.eye, F.eyeTest],
-    ["📕", c.book, F.learningBook],
-    ["📝", c.exam, F.examAppointment],
-    ["🚗", c.classes, cls, `${F.hours} ${u.hours} × ${F.perHour} ${u.bd}`],
-    ["🪪", c.card, F.licenseCard],
+function Hub({ T, U, H, show, openCat, maxPos }) {
+  const cats = [
+    ["process", "📋", H.process, H.processSub],
+    ["gov", "🏛️", H.gov, H.govSub],
+    ["ins", "🚗", H.ins, H.insSub],
+    ["docs", "🪪", H.docs, H.docsSub],
+    ["lessons", "📘", H.lessons, H.lessonsSub],
+    ["quiz", "❓", H.quiz, H.quizSub],
+    ["register", "📝", H.register, H.registerSub],
+    ["map", "🗺️", H.map, H.mapSub],
   ];
+  return (<>
+    <h2>{H.title}</h2>
+    <p className="muted" style={{ marginBottom: 12 }}>{H.sub}</p>
+    <button className="complete" onClick={() => show(maxPos > 0 ? FLOW[maxPos] : "welcome", "full")}>
+      <span className="c-ic">🧭</span>
+      <span><b>{maxPos > 0 ? H.resume : H.complete}</b><small>{H.completeSub}</small></span>
+      <span className="c-go">{T.dir === "rtl" ? "←" : "→"}</span>
+    </button>
+    {maxPos > 0 && <button className="btn small-link" onClick={() => show("map", "full")}>🗺️ {U.journey}</button>}
+    <div className="cats">
+      {cats.map(([k, ic, t, sub], i) => (
+        <button key={k} className="cat" onClick={() => openCat(k)}>
+          <span className="cat-n">{i + 1}</span>
+          <span className="cat-ic">{ic}</span>
+          <b>{t}</b><small>{sub}</small>
+        </button>))}
+    </div>
+    {CONFIG.whatsapp && <a className="btn wa" href={`https://wa.me/${CONFIG.whatsapp}`} target="_blank" rel="noopener noreferrer">💬 {T.ui.whatsapp}</a>}
+    <p className="muted">{T.ui.disclaimer}</p>
+  </>);
+}
+
+function FeeList({ T, items }) {
+  const u = T.ui, total = items.reduce((s, x) => s + x[2], 0);
+  return (<div className="fees">
+    {items.map(([ic, label, v, sub]) => (
+      <div className="fee" key={label}>
+        <span className="fee-ic">{ic}</span>
+        <div className="fee-body">
+          <div className="fee-top"><span>{label}</span><b>{v} {u.bd}</b></div>
+          {sub && <div className="muted">{sub}</div>}
+          {items.length > 1 && <div className="fee-bar"><i style={{ width: `${(v / total) * 100}%` }} /></div>}
+        </div>
+      </div>))}
+  </div>);
+}
+const allIn = () => F.eyeTest + F.learningBook + F.examAppointment + F.hours * F.perHour + F.licenseCard;
+
+function GovFees({ T, U, H, mode, Nav }) {
+  const c = T.costs, u = T.ui;
+  const items = [["👁️", c.eye, F.eyeTest], ["📕", c.book, F.learningBook], ["📝", c.exam, F.examAppointment], ["🪪", c.card, F.licenseCard]];
   const total = items.reduce((s, x) => s + x[2], 0);
   return (<>
-    <p className="kicker">{U.part1}</p>
-    <div className="total-hero">
-      <span>💰 {T.menu.costs}</span>
-      <b>{total} <small>{u.bd}</small></b>
+    <p className="kicker">{mode === "full" ? U.part1 : H.topics}</p>
+    <div className="total-hero gov"><span>🏛️ {H.gov}</span><b>{total} <small>{u.bd}</small></b></div>
+    <FeeList T={T} items={items} />
+    <div className="card note">ℹ️ {H.govNote}</div>
+    <p className="muted center" style={{ marginBottom: 10 }}>{H.allIn}: <b>{allIn()} {u.bd}</b></p>
+    <Nav label={mode === "full" ? undefined : H.topics} />
+  </>);
+}
+
+function InsFees({ T, U, H, mode, Nav }) {
+  const c = T.costs, u = T.ui, cls = F.hours * F.perHour;
+  return (<>
+    <p className="kicker">{mode === "full" ? U.part1 : H.topics}</p>
+    <div className="total-hero"><span>🚗 {H.ins}</span><b>{cls} <small>{u.bd}</small></b></div>
+    <div className="hours">
+      <div><b>{F.hours}</b><small>{u.hours}</small></div><span>×</span>
+      <div><b>{F.perHour}</b><small>{u.bd} {u.perHour}</small></div><span>=</span>
+      <div className="eq"><b>{cls}</b><small>{u.bd}</small></div>
     </div>
-    <div className="fees">
-      {items.map(([ic, label, v, sub]) => (
-        <div className="fee" key={label}>
-          <span className="fee-ic">{ic}</span>
-          <div className="fee-body">
-            <div className="fee-top"><span>{label}</span><b>{v} {u.bd}</b></div>
-            {sub && <div className="muted">{sub}</div>}
-            <div className="fee-bar"><i style={{ width: `${(v / total) * 100}%` }} /></div>
-          </div>
-        </div>))}
-    </div>
+    <div className="card">🚘 {c.classes} — {H.insNote}</div>
     <div className="card note">💳 {u.payNote}</div>
-    <Nav />
+    <p className="muted center" style={{ marginBottom: 10 }}>{H.allIn}: <b>{allIn()} {u.bd}</b></p>
+    <Nav label={mode === "full" ? undefined : H.topics} />
   </>);
 }
 
