@@ -1,6 +1,6 @@
 # Bahrain Driving Licence Guide (Next.js)
 
-Instructors share one link with their students. Each student picks a language (English, العربية, اردو, हिन्दी, മലയാളം, فارسی) and the app takes them through:
+Instructors share one link with their students. Each student picks a language (English, العربية, اردو, हिन्दी, മലയാളം, 中文) and the app takes them through:
 
 - **Register with your instructor:** name, WhatsApp number, nationality, area, car type, preferred time, whether they have a learner licence, notes
 - The step-by-step licence process, the full cost breakdown (217 BD) and the documents needed

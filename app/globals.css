@@ -91,3 +91,11 @@ h2 .num{vertical-align:middle}
 .fee-bar{height:6px;background:var(--line);border-radius:3px;margin-top:6px;overflow:hidden}.fee-bar i{display:block;height:100%;background:var(--red);border-radius:3px}
 .note{background:#fff8e1;border-color:#ffe082;color:#5d4037}
 @media (prefers-color-scheme:dark){.note{background:#3a3220;color:#ffe9b0;border-color:#5c4a1a}}
+/* instructor card */
+.instructor{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:16px;box-shadow:0 4px 18px rgba(0,0,0,.06)}
+.instructor img{flex:none;width:96px;height:96px;margin:0;border-radius:50%;object-fit:cover;border:4px solid var(--red);background:var(--line)}
+.instructor h2{margin:2px 0;font-size:19px;line-height:1.25}
+.ins-label{font-size:12px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.03em}
+.ins-code{font-size:14px;color:var(--muted)}.ins-code b{display:inline-block;background:var(--red);color:#fff;border-radius:8px;padding:1px 10px;margin-inline-start:4px;font-size:15px;letter-spacing:.05em}
+.lang-title{margin-bottom:10px}.lang-title h2{margin-bottom:4px}
+@media (max-width:340px){.instructor img{width:72px;height:72px}.instructor h2{font-size:17px}}
