@@ -19,7 +19,7 @@ export default function AdminClient({ initial }) {
 
   const counts = useMemo(() => Object.fromEntries(STATUSES.map((s) => [s, rows.filter((r) => r.status === s).length])), [rows]);
   const shown = rows.filter((r) => (filter === "all" || r.status === filter) &&
-    (!q || [r.name, r.phone, r.nationality, r.area, r.notes].join(" ").toLowerCase().includes(q.toLowerCase())));
+    (!q || [r.name, r.phone, r.email, r.nationality, r.area, r.notes].join(" ").toLowerCase().includes(q.toLowerCase())));
 
   async function patch(id, data) {
     setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...data } : r)));
@@ -32,7 +32,7 @@ export default function AdminClient({ initial }) {
     await fetch(`/api/admin/registrations/${id}`, { method: "DELETE" });
   }
   function exportCsv() {
-    const cols = ["createdAt", "name", "phone", "nationality", "area", "gear", "time", "licence", "lang", "status", "notes", "note"];
+    const cols = ["createdAt", "name", "phone", "email", "nationality", "area", "gear", "time", "licence", "lang", "status", "notes", "note"];
     const csv = [cols.join(","), ...rows.map((r) => cols.map((c) => `"${String(r[c] ?? "").replace(/"/g, '""')}"`).join(","))].join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" }));
@@ -69,7 +69,7 @@ export default function AdminClient({ initial }) {
               {r.source === "landing" && <span className="badge">consultation</span>}
               <span className="muted" style={{ marginInlineStart: "auto" }}>{new Date(r.createdAt).toLocaleString()}</span>
             </div>
-            <div dir="ltr" style={{ fontWeight: 600 }}>{r.phone}</div>
+            <div dir="ltr" style={{ fontWeight: 600 }}>{r.phone}{r.email && <> · <a href={`mailto:${r.email}`}>{r.email}</a></>}</div>
             <div className="muted">
               {[r.nationality, r.area, LABEL[r.gear], LABEL[r.time], LABEL[r.licence], I18N[r.lang]?.name].filter(Boolean).join(" · ")}
             </div>

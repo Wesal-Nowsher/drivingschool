@@ -1,21 +1,8 @@
 "use client";
 import { useState } from "react";
 
-const TIMES = [["morning", "Morning"], ["afternoon", "Afternoon"], ["evening", "Evening"]];
-const GEARS = [["auto", "Automatic"], ["manual", "Manual"]];
-
-function Chips({ value, onChange, options }) {
-  return (
-    <div className="l-chips">
-      {options.map(([k, label]) => (
-        <button type="button" key={k} className={`l-chip ${value === k ? "on" : ""}`} onClick={() => onChange(k)}>{label}</button>
-      ))}
-    </div>
-  );
-}
-
 export default function ConsultForm() {
-  const [f, setF] = useState({ name: "", phone: "+973 ", gear: "", time: "", licence: "", notes: "", website: "" });
+  const [f, setF] = useState({ name: "", phone: "+973 ", email: "", notes: "", website: "" });
   const [state, setState] = useState("idle"); // idle | sending | done
   const [err, setErr] = useState("");
   const set = (k) => (v) => setF({ ...f, [k]: typeof v === "string" ? v : v.target.value });
@@ -23,6 +10,7 @@ export default function ConsultForm() {
   async function submit(e) {
     e.preventDefault();
     if (!f.name.trim() || f.phone.replace(/\D/g, "").length < 7) { setErr("Please enter your name and WhatsApp number."); return; }
+    if (f.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) { setErr("Please enter a valid email address."); return; }
     setErr(""); setState("sending");
     try {
       const res = await fetch("/api/register", {
@@ -50,12 +38,8 @@ export default function ConsultForm() {
       <input id="c-name" value={f.name} onChange={set("name")} maxLength={100} autoComplete="name" required />
       <label htmlFor="c-phone">WhatsApp number *</label>
       <input id="c-phone" value={f.phone} onChange={set("phone")} inputMode="tel" dir="ltr" autoComplete="tel" maxLength={30} required />
-      <label>Car type</label>
-      <Chips value={f.gear} onChange={set("gear")} options={GEARS} />
-      <label>Preferred time</label>
-      <Chips value={f.time} onChange={set("time")} options={TIMES} />
-      <label>Do you have a learning licence?</label>
-      <Chips value={f.licence} onChange={set("licence")} options={[["yes", "Yes"], ["no", "Not yet"]]} />
+      <label htmlFor="c-email">Email (optional)</label>
+      <input id="c-email" type="email" value={f.email} onChange={set("email")} maxLength={120} autoComplete="email" dir="ltr" />
       <label htmlFor="c-notes">Message (optional)</label>
       <textarea id="c-notes" rows={2} value={f.notes} onChange={set("notes")} maxLength={500} />
       <input className="hp" tabIndex={-1} autoComplete="off" aria-hidden="true" value={f.website} onChange={set("website")} />

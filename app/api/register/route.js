@@ -14,6 +14,7 @@ export async function POST(req) {
   if (!name || phone.replace(/\D/g, "").length < 7) return NextResponse.json({ error: "required" }, { status: 400 });
   await addRegistration({
     name, phone,
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(str(b.email, 120)) ? str(b.email, 120) : "",
     nationality: str(b.nationality, 60),
     area: str(b.area, 80),
     gear: pick(b.gear, ["auto", "manual"]),
