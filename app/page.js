@@ -289,7 +289,7 @@ function InsFees({ T, U, H, mode, Nav }) {
       <div><b>{F.perHour}</b><small>{u.bd} {u.perHour}</small></div><span>=</span>
       <div className="eq"><b>{cls}</b><small>{u.bd}</small></div>
     </div>
-    <div className="card">🚘 {c.classes} — {H.insNote}</div>
+    <div className="card">🚘 {c.classes}: {H.insNote}</div>
     <div className="card note">💳 {u.payNote}</div>
     <div className="allin static"><span>💰 {H.allIn}</span><b>{allIn()} <small>{u.bd}</small></b></div>
     <Nav label={mode === "full" ? undefined : H.topics} />

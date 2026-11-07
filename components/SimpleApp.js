@@ -95,11 +95,11 @@ export default function SimpleApp() {
       </button>
     </>);
   } else if (view.name === "step") {
-    // Page 0 = steps 1–4, page 1 = steps 5–7
+    // Page 0 = steps 1-4, page 1 = steps 5-7
     const PAGES = [[0, 1, 2, 3], [4, 5, 6]];
     const pg = view.i, idx = PAGES[pg], n = T.steps.length;
     body = (<>
-      <p className="s-kicker s-num">{U.stepOf} {idx[0] + 1}–{idx[idx.length - 1] + 1} {U.of} {n}</p>
+      <p className="s-kicker s-num">{U.stepOf} {idx[0] + 1}-{idx[idx.length - 1] + 1} {U.of} {n}</p>
       <div className="s-progress"><i style={{ width: `${((idx[idx.length - 1] + 1) / n) * 100}%` }} /></div>
       <ol className="s-steps" start={idx[0] + 1}>
         {idx.map((k) => (

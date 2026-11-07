@@ -80,7 +80,7 @@ const SCENES = [
       <path d="M232 82 v66" stroke="#fff" strokeWidth="2" strokeDasharray="3 3" /><text x="238" y="120" fontSize="12" fill="#fff" fontWeight="700">2s</text>
     </>),
   },
-  null, // 2 roundabout — handled by <Roundabout/>
+  null, // 2 roundabout, handled by <Roundabout/>
   { // 3 Traffic lights & junctions
     hs: [[62, 56], [175, 110], [62, 140], [272, 52], [272, 150]],
     draw: (st) => (<>
