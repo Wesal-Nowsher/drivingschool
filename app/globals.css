@@ -326,3 +326,8 @@ body:has(.s-wrap){background:#fff}
 .g-complete .s-nav{text-align:start}
 @media (prefers-color-scheme:dark){.g-opt{background:#111;color:#eee;border-color:#444}.g-opt.ok{background:#eee;color:#111}.g-rules li{border-color:#333}.g-rules li.active{background:#1c1c1c}.g-found b{color:#eee}.g-dots i{border-color:#eee}.g-dots i.on{background:#eee}}
 .s-bar-spacer{flex:1}
+/* friendlier, readable game scenes: keep colours, smaller tap badges */
+.s-game svg.scene{filter:none}
+.s-game .hs-num{font-size:12px}
+.s-game .hs-ring{fill:rgba(255,255,255,.55);stroke:#111;stroke-width:1.5}
+.hs:focus{outline:none}.hs:focus-visible .hs-ring{stroke-width:3}

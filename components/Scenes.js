@@ -49,107 +49,217 @@ function TrafficLight({ x, y, on }) {
 }
 
 // Each scene: draw(state) + hotspots [x,y] in order of the lesson bullets.
+const CarTop = ({ color }) => <Car x={0} y={0} color={color} />;
+// Animated lesson scenes. Hotspots sit BESIDE objects so both stay visible.
+const LOOP = "indefinite";
+const Move = ({ values, keyTimes, dur, children, begin = "0s" }) => (
+  <g>
+    <animateTransform attributeName="transform" type="translate" values={values} keyTimes={keyTimes} dur={dur} repeatCount={LOOP} begin={begin} calcMode={keyTimes ? "linear" : undefined} />
+    {children}
+  </g>
+);
+const Blink = ({ dur = "0.8s", children }) => (
+  <g><animate attributeName="opacity" values="1;0.15;1" dur={dur} repeatCount={LOOP} />{children}</g>
+);
+const RoadDashes = ({ x, y1 = -40, y2 = 260, color = "#fff", speed = "1s", w = 3 }) => (
+  <line x1={x} y1={y1} x2={x} y2={y2} stroke={color} strokeWidth={w} strokeDasharray="16 14">
+    <animate attributeName="stroke-dashoffset" from="0" to="-30" dur={speed} repeatCount={LOOP} />
+  </line>
+);
+
 const SCENES = [
-  { // 0 Before you drive: car interior top view
-    hs: [[160, 42], [118, 136], [262, 150], [205, 178], [160, 166]],
+  { // 0 Before you drive: view from the back seat
+    hs: [[200, 22], [142, 204], [26, 128], [266, 124], [186, 168]],
     draw: () => (<>
-      <rect width="320" height="220" fill="#eceff1" />
-      <path d="M90 20 h140 q30 0 30 30 v150 h-200 v-150 q0 -30 30 -30z" fill="#cfd8dc" stroke={INK} strokeWidth="2" />
-      <rect x="130" y="34" width="60" height="14" rx="4" fill="#90a4ae" stroke={INK} />
-      <rect x="66" y="70" width="20" height="14" rx="4" fill="#90a4ae" /><rect x="234" y="70" width="20" height="14" rx="4" fill="#90a4ae" />
-      <circle cx="125" cy="92" r="20" fill="none" stroke={INK} strokeWidth="5" />
-      <rect x="185" y="110" width="40" height="50" rx="8" fill="#78909c" /><rect x="105" y="110" width="40" height="50" rx="8" fill="#78909c" />
-      <path d="M106 112 L144 158" stroke={RED} strokeWidth="5" />
-      <circle cx="205" cy="128" r="11" fill="#c98d63" /><text x="205" y="200" fontSize="11" textAnchor="middle" fontWeight="700">INSTRUCTOR</text>
-      <Phone x={262} y={150} />
-      <rect x="150" y="150" width="20" height="30" rx="4" fill={INK} /><text x="160" y="171" fontSize="10" textAnchor="middle" fill="#fff" fontWeight="700">P</text>
+      <rect width="320" height="220" fill="#e9eef2" />
+      {/* windshield with moving road */}
+      <path d="M42 8 H278 L300 92 H20 Z" fill="#cfe8ff" />
+      <path d="M140 92 L156 30 H164 L180 92 Z" fill="#8a9299" />
+      <RoadDashes x={160} y1={30} y2={92} speed="0.6s" w={2} />
+      <path d="M20 92 H300 V110 H20 Z" fill="#37474f" />
+      {/* rear-view mirror + side mirrors */}
+      <rect x="135" y="14" width="50" height="14" rx="5" fill="#455a64" /><rect x="139" y="17" width="42" height="8" rx="3" fill="#b3e5fc" />
+      <path d="M6 64 h18 v18 h-18 z" fill="#455a64" /><rect x="8" y="66" width="14" height="14" rx="2" fill="#b3e5fc" />
+      <path d="M296 64 h18 v18 h-18 z" fill="#455a64" /><rect x="298" y="66" width="14" height="14" rx="2" fill="#b3e5fc" />
+      {/* steering wheel (left: Bahrain cars are left-hand drive) */}
+      <circle cx="95" cy="104" r="24" fill="none" stroke="#263238" strokeWidth="7" />
+      <path d="M71 104 H119 M95 104 V128" stroke="#263238" strokeWidth="6" />
+      {/* driver */}
+      <rect x="58" y="140" width="74" height="80" rx="16" fill="#78909c" />
+      <circle cx="95" cy="138" r="17" fill="#5d4037" />
+      <path d="M120 150 L70 214" stroke="#ce1126" strokeWidth="7" strokeLinecap="round" strokeDasharray="80" strokeDashoffset="80">
+        <animate attributeName="stroke-dashoffset" values="80;0;0;80" keyTimes="0;0.35;0.85;1" dur="3s" repeatCount={LOOP} />
+      </path>
+      {/* instructor */}
+      <rect x="188" y="140" width="74" height="80" rx="16" fill="#90a4ae" />
+      <circle cx="225" cy="138" r="17" fill="#3e2723" />
+      <rect x="208" y="112" width="34" height="12" rx="3" fill="#ce1126" /><text x="225" y="122" fontSize="10" textAnchor="middle" fill="#fff" fontWeight="800">L</text>
+      {/* gear lever in P */}
+      <rect x="152" y="150" width="16" height="44" rx="6" fill="#263238" />
+      <Blink dur="1.4s"><circle cx="160" cy="148" r="11" fill="#263238" /><text x="160" y="152" fontSize="12" textAnchor="middle" fill="#fff" fontWeight="800">P</text></Blink>
+      {/* phone: not allowed */}
+      <g transform="translate(34 172)">
+        <animateTransform attributeName="transform" type="rotate" values="-8;8;-8" dur="0.6s" repeatCount={LOOP} additive="sum" />
+        <rect x="-9" y="-15" width="18" height="30" rx="3" fill="#263238" /><rect x="-7" y="-11" width="14" height="20" fill="#90caf9" />
+        <circle r="17" fill="none" stroke="#ce1126" strokeWidth="4" /><path d="M-12 -12 L12 12" stroke="#ce1126" strokeWidth="4" />
+      </g>
     </>),
   },
-  { // 1 Keep right, lanes & speed
-    hs: [[214, 170], [128, 96], [56, 50], [240, 112], [176, 140]],
+  { // 1 Keep right, lanes & speed (Bahrain: drive on the right)
+    hs: [[272, 186], [186, 206], [300, 92], [272, 112], [138, 34]],
     draw: () => (<>
-      <rect width="320" height="220" fill={GRASS} />
-      <rect x="90" y="0" width="160" height="220" fill={ROAD} />
-      {[0, 50, 100, 150, 200].map((yy) => <rect key={yy} x="168" y={yy} width="4" height="26" fill="#fff" />)}
-      <rect x="90" y="0" width="3" height="220" fill="#ffeb3b" /><rect x="247" y="0" width="3" height="220" fill="#fff" />
-      <Car x={214} y={170} />
-      <Car x={214} y={60} color="#90caf9" />
-      <path d="M200 150 q-20 -30 -60 -40 q0 -20 10 -40" stroke="#ffeb3b" strokeWidth="4" fill="none" strokeDasharray="6 5" />
-      <Car x={128} y={96} r={-10} color="#d8b98a" />
-      <rect x="40" y="70" width="6" height="40" fill={INK} /><Sign x={43} y={50} kind="speed" />
-      <path d="M232 82 v66" stroke="#fff" strokeWidth="2" strokeDasharray="3 3" /><text x="238" y="120" fontSize="12" fill="#fff" fontWeight="700">2s</text>
+      <rect width="320" height="220" fill="#a5d6a7" />
+      <rect x="70" y="0" width="180" height="220" fill="#546e7a" />
+      <line x1="157" y1="0" x2="157" y2="220" stroke="#ffd54f" strokeWidth="3" /><line x1="163" y1="0" x2="163" y2="220" stroke="#ffd54f" strokeWidth="3" />
+      <RoadDashes x={114} speed="0.5s" /><RoadDashes x={206} speed="0.8s" />
+      <line x1="72" y1="0" x2="72" y2="220" stroke="#fff" strokeWidth="2" /><line x1="248" y1="0" x2="248" y2="220" stroke="#fff" strokeWidth="2" />
+      {/* oncoming traffic on the left side */}
+      <Move values="0 -60;0 300" dur="2.6s"><g transform="translate(92 0) rotate(180)"><CarTop color="#90caf9" /></g></Move>
+      {/* our car + car in front, keeping a gap */}
+      <g transform="translate(228 170)"><CarTop color="#ffca28" /></g>
+      <g transform="translate(228 70)"><CarTop color="#b0bec5" /></g>
+      <path d="M252 92 v54 M247 92 h10 M247 146 h10" stroke="#fff" strokeWidth="2" />
+      <text x="262" y="124" fontSize="12" fill="#fff" fontWeight="800">2s</text>
+      {/* overtaking on the LEFT lane, indicator blinking */}
+      <Move values="0 260;0 -60" dur="3.2s">
+        <g transform="translate(184 0)"><CarTop color="#ef9a9a" />
+          <Blink dur="0.5s"><circle cx="-10" cy="-19" r="4" fill="#ff9800" /></Blink></g>
+      </Move>
+      {/* speed sign */}
+      <rect x="283" y="60" width="4" height="70" fill="#37474f" />
+      <circle cx="285" cy="50" r="18" fill="#fff" stroke="#ce1126" strokeWidth="5" /><text x="285" y="56" fontSize="15" textAnchor="middle" fontWeight="800" fill="#263238">60</text>
+      {/* direction arrow on our side */}
+      <path d="M206 214 v-22 m-7 8 l7 -9 7 9" stroke="#fff" strokeWidth="3" fill="none" />
     </>),
   },
-  null, // 2 roundabout, handled by <Roundabout/>
-  { // 3 Traffic lights & junctions
-    hs: [[62, 56], [175, 110], [62, 140], [272, 52], [272, 150]],
-    draw: (st) => (<>
-      <rect width="320" height="220" fill={GRASS} />
-      <rect x="0" y="80" width="320" height="60" fill={ROAD} /><rect x="130" y="0" width="60" height="220" fill={ROAD} />
-      <path d="M130 80 L190 140 M190 80 L130 140" stroke="#ffeb3b" strokeWidth="3" />
-      <rect x="130" y="80" width="60" height="60" fill="none" stroke="#ffeb3b" strokeWidth="3" />
-      <rect x="120" y="140" width="4" height="60" fill="#fff" />
-      <rect x="196" y="144" width="4" height="0" fill="#fff" />
-      <rect x="140" y="146" width="44" height="4" fill="#fff" />
-      <Car x={160} y={178} color="#d8b98a" />
-      <TrafficLight x={62} y={60} on={st.light} />
-      <rect x="270" y="70" width="4" height="40" fill={INK} /><Sign x={272} y={52} kind="stop" s={1.1} />
-      <rect x="270" y="168" width="4" height="40" fill={INK} /><Sign x={272} y={150} kind="giveway" />
+  null, // 2 roundabout: handled by <Roundabout/>
+  { // 3 Traffic lights & junctions: light cycles, car stops on red, goes on green
+    hs: [[254, 140], [212, 64], [112, 162], [300, 66], [92, 198]],
+    draw: () => (<>
+      <rect width="320" height="220" fill="#a5d6a7" />
+      <rect x="0" y="80" width="320" height="56" fill="#546e7a" /><rect x="132" y="0" width="56" height="220" fill="#546e7a" />
+      <g stroke="#ffd54f" strokeWidth="2.5"><rect x="132" y="80" width="56" height="56" fill="none" /><path d="M132 80 L188 136 M188 80 L132 136 M160 80 L188 108 M132 108 L160 136 M160 136 L188 108 M132 108 L160 80" /></g>
+      <rect x="160" y="146" width="28" height="4" fill="#fff" />
+      <line x1="160" y1="146" x2="160" y2="220" stroke="#fff" strokeWidth="2" strokeDasharray="8 8" />
+      {/* car: approaches, waits at red, goes on green */}
+      <Move values="0 90;0 0;0 0;0 -240;0 -240" keyTimes="0;0.25;0.42;0.75;1" dur="6s">
+        <g transform="translate(174 172)"><CarTop color="#ffca28" /></g>
+      </Move>
+      {/* traffic light */}
+      <rect x="226" y="150" width="5" height="50" fill="#263238" />
+      <rect x="214" y="92" width="30" height="64" rx="7" fill="#263238" />
+      <circle cx="229" cy="106" r="8" fill="#e53935"><animate attributeName="opacity" values="1;1;0.15;0.15;0.15" keyTimes="0;0.42;0.43;0.99;1" dur="6s" repeatCount={LOOP} /></circle>
+      <circle cx="229" cy="124" r="8" fill="#ffb300"><animate attributeName="opacity" values="0.15;0.15;1;1" keyTimes="0;0.8;0.81;1" dur="6s" repeatCount={LOOP} /></circle>
+      <circle cx="229" cy="142" r="8" fill="#43a047"><animate attributeName="opacity" values="0.15;0.15;1;1;0.15;0.15" keyTimes="0;0.42;0.43;0.8;0.81;1" dur="6s" repeatCount={LOOP} /></circle>
+      {/* STOP sign */}
+      <rect x="268" y="48" width="4" height="30" fill="#263238" />
+      <path d="M262 18 h12 l9 9 v12 l-9 9 h-12 l-9 -9 v-12z" fill="#ce1126" stroke="#fff" strokeWidth="2" /><text x="268" y="37" fontSize="8" textAnchor="middle" fontWeight="800" fill="#fff">STOP</text>
+      {/* give way sign */}
+      <rect x="58" y="176" width="4" height="40" fill="#263238" />
+      <path d="M60 196 L42 164 H78 Z" fill="#fff" stroke="#ce1126" strokeWidth="4" strokeLinejoin="round" />
     </>),
-    tap: (i, st, set) => { if (i === 0) set({ ...st, light: ((st.light ?? -1) + 1) % 3 }); },
   },
-  { // 4 Road signs
-    hs: [[45, 80], [100, 80], [160, 80], [220, 80], [278, 80]],
+  { // 4 Road signs: tap the number under each sign
+    hs: [[45, 120], [105, 120], [165, 120], [225, 120], [285, 120]],
     draw: () => (<>
       <rect width="320" height="220" fill="#e8f5e9" />
-      {[[45, "noentry"], [100, "mandatory"], [160, "warning"], [220, "info"], [278, "stop"]].map(([x, k]) => (
-        <g key={k}><rect x={x - 2} y="100" width="4" height="70" fill={INK} /><Sign x={x} y={80} kind={k} s={1.25} /></g>))}
-      <Sign x={45} y={140} kind="speed" s={0.8} />
-      <Sign x={278} y={140} kind="giveway" s={0.8} />
-      <rect y="170" width="320" height="50" fill={ROAD} />
+      <rect y="196" width="320" height="24" fill="#546e7a" />
+      {[45, 105, 165, 225, 285].map((x) => <rect key={x} x={x - 2} y="80" width="4" height="116" fill="#37474f" />)}
+      <g><animateTransform attributeName="transform" type="rotate" values="-2 45 196;2 45 196;-2 45 196" dur="3s" repeatCount={LOOP} />
+        <circle cx="45" cy="60" r="24" fill="#ce1126" /><rect x="29" y="55" width="32" height="10" fill="#fff" /></g>
+      <circle cx="45" cy="165" r="16" fill="#fff" stroke="#ce1126" strokeWidth="5" /><text x="45" y="170" fontSize="13" textAnchor="middle" fontWeight="800" fill="#263238">60</text>
+      <g><animateTransform attributeName="transform" type="rotate" values="2 105 196;-2 105 196;2 105 196" dur="3s" repeatCount={LOOP} />
+        <circle cx="105" cy="60" r="24" fill="#1565c0" /><path d="M95 60 h18 m-7 -8 l8 8 -8 8" stroke="#fff" strokeWidth="4" fill="none" strokeLinecap="round" /></g>
+      <g><animateTransform attributeName="transform" type="rotate" values="-2 165 196;2 165 196;-2 165 196" dur="3s" repeatCount={LOOP} />
+        <path d="M165 33 L191 82 H139 Z" fill="#fff" stroke="#ce1126" strokeWidth="5" strokeLinejoin="round" />
+        <circle cx="158" cy="68" r="5" fill="#263238" /><circle cx="172" cy="68" r="5" fill="#263238" /><circle cx="165" cy="56" r="5" fill="#263238" /></g>
+      <g><animateTransform attributeName="transform" type="rotate" values="2 225 196;-2 225 196;2 225 196" dur="3s" repeatCount={LOOP} />
+        <rect x="197" y="42" width="56" height="36" rx="4" fill="#1565c0" stroke="#fff" strokeWidth="2" /><path d="M208 60 h28 m-8 -8 l8 8 -8 8" stroke="#fff" strokeWidth="4" fill="none" strokeLinecap="round" /></g>
+      <g><animateTransform attributeName="transform" type="rotate" values="-2 285 196;2 285 196;-2 285 196" dur="3s" repeatCount={LOOP} />
+        <path d="M275 36 h20 l14 14 v20 l-14 14 h-20 l-14 -14 v-20z" fill="#ce1126" stroke="#fff" strokeWidth="2.5" /><text x="285" y="64" fontSize="11" textAnchor="middle" fontWeight="800" fill="#fff">STOP</text></g>
+      <path d="M285 182 L268 152 H302 Z" fill="#fff" stroke="#ce1126" strokeWidth="4" strokeLinejoin="round" />
     </>),
   },
-  { // 5 Pedestrians
-    hs: [[160, 110], [60, 40], [252, 72], [110, 150]],
+  { // 5 Pedestrians: person crosses, car waits
+    hs: [[206, 64], [108, 20], [292, 96], [30, 188]],
     draw: () => (<>
-      <rect width="320" height="220" fill={GRASS} />
-      <rect x="0" y="80" width="320" height="70" fill={ROAD} />
-      {[0, 1, 2, 3, 4, 5].map((i) => <rect key={i} x={140} y={84 + i * 11} width="40" height="6" fill="#fff" />)}
-      <Walker x={160} y={115} />
-      <rect x="20" y="20" width="80" height="50" fill="#ffcc80" stroke={INK} /><path d="M20 20 l40 -14 40 14" fill="#e57373" />
-      <Sign x={128} y={40} kind="school" />
-      <Walker x={252} y={72} s={0.7} c="#ab47bc" /><circle cx="262" cy="64" r="5" fill="#ffeb3b" />
-      <Car x={110} y={130} r={90} color="#90caf9" />
-      <Car x={60} y={130} r={90} />
-      <path d="M85 152 q20 14 45 0" stroke={RED} strokeWidth="3" fill="none" /><path d="M120 146 l12 6 -12 6" fill={RED} />
-      <path d="M95 158 l30 -16 M95 142 l30 16" stroke={RED} strokeWidth="4" />
+      <rect width="320" height="220" fill="#a5d6a7" />
+      <rect x="0" y="86" width="320" height="76" fill="#546e7a" />
+      <line x1="0" y1="124" x2="320" y2="124" stroke="#fff" strokeWidth="2" strokeDasharray="14 12" />
+      {[0, 1, 2, 3, 4, 5].map((k) => <rect key={k} x="140" y={89 + k * 12} width="44" height="7" fill="#fff" />)}
+      {/* school */}
+      <rect x="12" y="20" width="80" height="50" fill="#ffe0b2" stroke="#5d4037" strokeWidth="2" /><path d="M8 22 L52 2 L96 22 Z" fill="#e57373" />
+      <rect x="44" y="44" width="16" height="26" fill="#8d6e63" />
+      {/* walking pedestrian */}
+      <Move values="0 0;0 -118;0 -118" keyTimes="0;0.8;1" dur="5s">
+        <g transform="translate(162 196)">
+          <circle cy="-22" r="7" fill="#8d6e63" /><rect x="-7" y="-15" width="14" height="18" rx="4" fill="#ef6c00" />
+          <path d="M-3 3 l-5 12 M3 3 l5 12" stroke="#263238" strokeWidth="3" strokeLinecap="round">
+            <animate attributeName="d" values="M-3 3 l-5 12 M3 3 l5 12;M-3 3 l2 12 M3 3 l-2 12;M-3 3 l-5 12 M3 3 l5 12" dur="0.5s" repeatCount={LOOP} /></path>
+        </g>
+      </Move>
+      {/* car waiting before the crossing */}
+      <g transform="translate(112 142) rotate(90)"><CarTop color="#ffca28" /></g>
+      {/* car behind must not overtake */}
+      <g transform="translate(60 142) rotate(90)"><CarTop color="#b0bec5" /></g>
+      <path d="M58 168 q40 22 80 0" stroke="#ce1126" strokeWidth="3" fill="none" strokeDasharray="6 5" />
+      <path d="M84 168 l20 14 M104 168 l-20 14" stroke="#ce1126" strokeWidth="4" />
+      {/* child with bouncing ball */}
+      <g transform="translate(270 70)"><circle cy="-18" r="6" fill="#8d6e63" /><rect x="-6" y="-12" width="12" height="14" rx="4" fill="#ab47bc" /><path d="M-3 2 l-3 9 M3 2 l3 9" stroke="#263238" strokeWidth="3" /></g>
+      <circle cx="288" cy="76" r="5" fill="#ffeb3b" stroke="#f57f17"><animate attributeName="cy" values="60;80;60" dur="0.7s" repeatCount={LOOP} /></circle>
     </>),
   },
-  { // 6 Reversing & parking
-    hs: [[160, 176], [160, 92], [248, 32], [30, 140], [252, 172]],
+  { // 6 Reversing & parking: car backs up slowly, child behind = danger
+    hs: [[200, 196], [214, 70], [292, 44], [52, 168], [292, 168]],
     draw: () => (<>
       <rect width="320" height="220" fill="#cfd8dc" />
-      <rect x="0" y="0" width="320" height="60" fill={ROAD} />
-      <rect x="110" y="60" width="100" height="160" fill="#b0bec5" />
-      <path d="M120 70 v140 M200 70 v140" stroke="#fff" strokeWidth="3" />
-      {[90, 140, 190].map((y) => <path key={y} d={`M20 ${y} l10 -18 10 18z`} fill="#ff7043" />)}
-      <path d="M118 200 L160 120 L202 200z" fill="rgba(206,17,38,.15)" />
-      <Car x={160} y={92} r={0} />
-      <path d="M160 116 v40" stroke="#fff" strokeWidth="3" /><path d="M152 148 l8 10 8 -10" stroke="#fff" strokeWidth="3" fill="none" />
-      <Walker x={160} y={190} s={0.7} c="#ffb300" />
-      <path d="M248 20 v24 M248 44 l-6 -6 M248 44 l6 -6" stroke={RED} strokeWidth="3" /><path d="M230 30 l36 0" stroke={RED} strokeWidth="4" transform="rotate(45 248 32)" />
-      <rect x="236" y="160" width="40" height="24" fill="#ffeb3b" opacity=".8" /><path d="M236 160 l40 24 M276 160 l-40 24" stroke={RED} strokeWidth="3" />
+      <rect x="0" y="0" width="320" height="52" fill="#546e7a" /><RoadDashes x={-1} />
+      <line x1="0" y1="26" x2="320" y2="26" stroke="#fff" strokeWidth="2" strokeDasharray="14 12" />
+      <path d="M118 52 v168 M202 52 v168" stroke="#fff" strokeWidth="3" />
+      {/* reversing car */}
+      <Move values="0 0;0 46;0 46;0 0" keyTimes="0;0.5;0.8;1" dur="5s">
+        <g transform="translate(160 92)"><CarTop color="#ffca28" />
+          <Blink dur="0.6s"><rect x="-9" y="18" width="6" height="4" fill="#fff" /><rect x="3" y="18" width="6" height="4" fill="#fff" /></Blink></g>
+      </Move>
+      {/* child behind + flashing warning */}
+      <g transform="translate(160 202)"><circle cy="-16" r="6" fill="#8d6e63" /><rect x="-6" y="-10" width="12" height="13" rx="4" fill="#ffb300" /></g>
+      <Blink dur="0.7s"><path d="M136 176 L146 160 L156 176 Z" fill="#ffeb3b" stroke="#ce1126" strokeWidth="2" /><text x="146" y="174" fontSize="10" textAnchor="middle" fontWeight="800">!</text></Blink>
+      {/* never reverse into main road */}
+      <circle cx="268" cy="26" r="15" fill="#fff" stroke="#ce1126" strokeWidth="3" />
+      <path d="M268 16 v18 m-6 -6 l6 7 6 -7" stroke="#263238" strokeWidth="3" fill="none" /><path d="M258 16 L278 36" stroke="#ce1126" strokeWidth="3" />
+      {/* exam cones */}
+      {[90, 128, 166].map((y) => <path key={y} d={`M22 ${y} l10 -20 10 20z`} fill="#ff7043" stroke="#bf360c" />)}
+      {/* yellow line: no parking */}
+      <rect x="232" y="196" width="80" height="6" fill="#ffd600" />
+      <g transform="translate(270 168)"><g transform="rotate(90)"><CarTop color="#b0bec5" /></g></g>
+      <path d="M252 152 L288 184 M288 152 L252 184" stroke="#ce1126" strokeWidth="4" />
     </>),
   },
-  { // 7 Exam tips
-    hs: [[52, 60], [130, 60], [210, 60], [272, 120], [130, 160]],
+  { // 7 Exam tips: checklist ticks itself off
+    hs: [[34, 150], [96, 150], [160, 150], [224, 150], [288, 150]],
     draw: () => (<>
       <rect width="320" height="220" fill="#fff8e1" />
-      <g transform="translate(52 60)"><rect x="-26" y="-18" width="52" height="34" rx="6" fill="#fff" stroke={INK} strokeWidth="2" /><text y="5" fontSize="12" textAnchor="middle" fontWeight="800" fill={RED}>CPR</text></g>
-      <g transform="translate(130 60)"><rect x="-12" y="-24" width="24" height="44" rx="6" fill="#78909c" /><path d="M-10 -22 L10 18" stroke={RED} strokeWidth="5" /></g>
-      <g transform="translate(210 60)"><rect x="-24" y="-14" width="48" height="28" rx="6" fill="#90a4ae" /><text y="6" fontSize="18" textAnchor="middle">⬅️</text></g>
-      <Sign x={272} y={120} kind="stop" s={1.4} />
-      <g transform="translate(130 160)"><circle r="28" fill="#ffd54f" /><circle cx="-9" cy="-6" r="4" fill={INK} /><circle cx="9" cy="-6" r="4" fill={INK} /><path d="M-12 8 q12 12 24 0" stroke={INK} strokeWidth="3" fill="none" /></g>
+      {[34, 96, 160, 224, 288].map((x, k) => (
+        <g key={x}>
+          <rect x={x - 26} y="40" width="52" height="80" rx="10" fill="#fff" stroke="#cfd8dc" strokeWidth="2" />
+          <circle cx={x + 20} cy="46" r="0" fill="#2e7d32">
+            <animate attributeName="r" values="0;0;9;9;0" keyTimes={`0;${(k * 0.15).toFixed(2)};${(k * 0.15 + 0.06).toFixed(2)};0.92;1`} dur="6s" repeatCount={LOOP} /></circle>
+          <path d={`M${x + 15} 46 l4 4 7 -8`} stroke="#fff" strokeWidth="2.5" fill="none" opacity="0">
+            <animate attributeName="opacity" values="0;0;1;1;0" keyTimes={`0;${(k * 0.15 + 0.03).toFixed(2)};${(k * 0.15 + 0.06).toFixed(2)};0.92;1`} dur="6s" repeatCount={LOOP} /></path>
+        </g>))}
+      {/* CPR card */}
+      <rect x="14" y="62" width="40" height="28" rx="4" fill="#fff" stroke="#263238" strokeWidth="2" /><text x="34" y="80" fontSize="9" textAnchor="middle" fontWeight="800" fill="#ce1126">CPR</text>
+      {/* seat belt */}
+      <rect x="80" y="56" width="32" height="44" rx="8" fill="#90a4ae" />
+      <path d="M108 60 L84 96" stroke="#ce1126" strokeWidth="5" strokeLinecap="round" strokeDasharray="44" strokeDashoffset="44">
+        <animate attributeName="stroke-dashoffset" values="44;0;0;44" keyTimes="0;0.3;0.9;1" dur="3s" repeatCount={LOOP} /></path>
+      {/* indicator */}
+      <Blink dur="0.7s"><path d="M176 80 h-22 m8 -9 l-9 9 9 9" stroke="#ff9800" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></Blink>
+      {/* STOP */}
+      <path d="M216 58 h16 l11 11 v16 l-11 11 h-16 l-11 -11 v-16z" fill="#ce1126" stroke="#fff" strokeWidth="2" /><text x="224" y="81" fontSize="9" textAnchor="middle" fontWeight="800" fill="#fff">STOP</text>
+      {/* calm face */}
+      <circle cx="288" cy="78" r="18" fill="#ffd54f" /><circle cx="282" cy="73" r="2.5" fill="#263238" /><circle cx="294" cy="73" r="2.5" fill="#263238" />
+      <path d="M280 84 q8 7 16 0" stroke="#263238" strokeWidth="2.5" fill="none" />
     </>),
   },
 ];
@@ -172,9 +282,9 @@ export function LessonScene({ index, active, seen, onTap }) {
         <g key={i} className={`hs ${active === i ? "on" : ""} ${seen.includes(i) ? "seen" : ""}`}
            onClick={() => { onTap(i); sc.tap?.(i, st, setSt); }} role="button" tabIndex={0}
            onKeyDown={(e) => e.key === "Enter" && onTap(i)}>
-          <circle cx={x} cy={y} r="22" className="hs-ring" />
-          <circle cx={x} cy={y} r="13" className="hs-dot" />
-          <text x={x} y={y + 5} textAnchor="middle" className="hs-num">{seen.includes(i) && active !== i ? "✓" : i + 1}</text>
+          <circle cx={x} cy={y} r="17" className="hs-ring" />
+          <circle cx={x} cy={y} r="11" className="hs-dot" />
+          <text x={x} y={y + 4.5} textAnchor="middle" className="hs-num">{seen.includes(i) && active !== i ? "✓" : i + 1}</text>
         </g>
       ))}
     </svg>
