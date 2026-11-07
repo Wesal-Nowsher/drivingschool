@@ -64,7 +64,7 @@ export default function LessonGame({ lang, T, U, i, Nav, nextLabel, onNext }) {
 
   // discover
   return (<div className={`s-game ${COLOR_LESSONS.includes(i) ? "color" : ""}`}>
-    <p className="g-hint">{G.discover}</p>
+    <p className="g-hint">{i === 2 ? G.discoverRb : G.discover}</p>
     <div className="g-stage">
       {i === 2 ? <Roundabout U={U} onTap={tap} /> : <LessonScene index={i} active={active} seen={seen} onTap={tap} nonce={nonce} />}
       {active !== null && <RulePopup key={`${active}-${nonce}`} n={active + 1} text={l.p[active]} at={i === 2 ? null : sceneHotspots(i)?.[active]} onClose={() => setActive(null)} />}
