@@ -325,3 +325,4 @@ body:has(.s-wrap){background:#fff}
 .g-score{font-size:18px;margin:4px 0}.g-score b{font-size:28px}
 .g-complete .s-nav{text-align:start}
 @media (prefers-color-scheme:dark){.g-opt{background:#111;color:#eee;border-color:#444}.g-opt.ok{background:#eee;color:#111}.g-rules li{border-color:#333}.g-rules li.active{background:#1c1c1c}.g-found b{color:#eee}.g-dots i{border-color:#eee}.g-dots i.on{background:#eee}}
+.s-bar-spacer{flex:1}
