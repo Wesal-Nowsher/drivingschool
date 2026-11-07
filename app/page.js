@@ -192,8 +192,8 @@ const REG_title = (T) => REG[Object.keys(I18N).find((k) => I18N[k] === T)].menu;
 function Hub({ T, U, H, show, openCat, maxPos }) {
   const cats = [
     ["process", "📋", H.process, H.processSub],
-    ["gov", "🏛️", H.gov, H.govSub],
-    ["ins", "🚗", H.ins, H.insSub],
+    ["gov", "🏛️", H.gov, H.govSub, F.eyeTest + F.learningBook + F.examAppointment + F.licenseCard],
+    ["ins", "🚗", H.ins, H.insSub, F.hours * F.perHour],
     ["docs", "🪪", H.docs, H.docsSub],
     ["lessons", "📘", H.lessons, H.lessonsSub],
     ["quiz", "❓", H.quiz, H.quizSub],
@@ -208,13 +208,16 @@ function Hub({ T, U, H, show, openCat, maxPos }) {
       <span><b>{maxPos > 0 ? H.resume : H.complete}</b><small>{H.completeSub}</small></span>
       <span className="c-go">{T.dir === "rtl" ? "←" : "→"}</span>
     </button>
+    <button className="allin" onClick={() => openCat("gov")}>
+      <span>💰 {H.allIn}</span><b>{allIn()} <small>{T.ui.bd}</small></b>
+    </button>
     {maxPos > 0 && <button className="btn small-link" onClick={() => show("map", "full")}>🗺️ {U.journey}</button>}
     <div className="cats">
-      {cats.map(([k, ic, t, sub], i) => (
+      {cats.map(([k, ic, t, sub, price], i) => (
         <button key={k} className="cat" onClick={() => openCat(k)}>
           <span className="cat-n">{i + 1}</span>
           <span className="cat-ic">{ic}</span>
-          <b>{t}</b><small>{sub}</small>
+          <b>{t}</b>{price != null && <span className="cat-price">{price} <small>{T.ui.bd}</small></span>}<small>{sub}</small>
         </button>))}
     </div>
     {CONFIG.whatsapp && <a className="btn wa" href={`https://wa.me/${CONFIG.whatsapp}`} target="_blank" rel="noopener noreferrer">💬 {T.ui.whatsapp}</a>}
@@ -247,7 +250,7 @@ function GovFees({ T, U, H, mode, Nav }) {
     <div className="total-hero gov"><span>🏛️ {H.gov}</span><b>{total} <small>{u.bd}</small></b></div>
     <FeeList T={T} items={items} />
     <div className="card note">ℹ️ {H.govNote}</div>
-    <p className="muted center" style={{ marginBottom: 10 }}>{H.allIn}: <b>{allIn()} {u.bd}</b></p>
+    <div className="allin static"><span>💰 {H.allIn}</span><b>{allIn()} <small>{u.bd}</small></b></div>
     <Nav label={mode === "full" ? undefined : H.topics} />
   </>);
 }
@@ -264,7 +267,7 @@ function InsFees({ T, U, H, mode, Nav }) {
     </div>
     <div className="card">🚘 {c.classes} — {H.insNote}</div>
     <div className="card note">💳 {u.payNote}</div>
-    <p className="muted center" style={{ marginBottom: 10 }}>{H.allIn}: <b>{allIn()} {u.bd}</b></p>
+    <div className="allin static"><span>💰 {H.allIn}</span><b>{allIn()} <small>{u.bd}</small></b></div>
     <Nav label={mode === "full" ? undefined : H.topics} />
   </>);
 }
