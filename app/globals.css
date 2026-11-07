@@ -104,7 +104,6 @@ h2 .num{vertical-align:middle}
 .complete .c-ic{font-size:34px;flex:none}.complete b{display:block;font-size:20px}.complete small{display:block;opacity:.9;font-size:14px}.complete .c-go{margin-inline-start:auto;font-size:26px;font-weight:800}
 .btn.small-link{text-align:center;padding:10px;font-size:15px}
 .cats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 12px}
-@media (min-width:600px){.cats{grid-template-columns:repeat(4,1fr)}}
 .total-hero.gov{background:linear-gradient(135deg,#1565c0,#0d3c78)}
 .hours{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .hours div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;text-align:center;min-width:76px}
@@ -165,7 +164,7 @@ header .logo{width:30px;height:30px;margin:0;border-radius:8px;background:none;b
 .cat-go{align-self:flex-end;width:36px;height:36px}
 .complete .c-go{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.18)}
 .complete .c-go .go-arrow{width:24px;height:24px}
-main.hub-main{max-width:1080px}
 .cats{grid-template-columns:1fr 1fr}
-@media (min-width:760px){.cats{grid-template-columns:repeat(4,1fr);gap:16px}.cat{padding:18px;min-height:220px}.cat-t{font-size:18px}.cat-s{font-size:14px}.hub-main>h2{font-size:26px}}
-@media (min-width:760px){:lang(ur) .cat-t{font-size:20px}:lang(ml) .cat-t{font-size:16px}:lang(ml) .cat-s{font-size:13.5px}}
+.cats{gap:12px}.cat{padding:16px}
+@media (min-width:600px){.cat-t{font-size:17px}.cat-s{font-size:14px}}
+@media (min-width:600px){:lang(ur) .cat-t{font-size:19px}:lang(ml) .cat-t{font-size:16px}:lang(ml) .cat-s{font-size:13.5px}}
