@@ -180,3 +180,7 @@ header h1 .htitle{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-
 header .t-short{display:none}
 @media (max-width:420px){header .t-full{display:none}header .t-short{display:inline}}
 @media (max-width:340px){header .htitle{display:none}}
+/* header content aligned with page content; red bar stays full width */
+header{display:block;padding:12px 0}
+header .hin{max-width:640px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+header .hin h1{flex:1}

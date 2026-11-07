@@ -135,10 +135,12 @@ const HOME = <><path d="M4 11l8-7 8 7" /><path d="M6 10v10h12V10" /><path d="M10
 function Header({ onLang, onMap, pct, langName }) {
   return (
     <header>
-      <h1><img className="logo" src="/logo.svg" alt="" /><span className="htitle" dir="ltr"><span className="t-full">Bahrain Driving Licence</span><span className="t-short">Driving Licence</span></span></h1>
-      {onMap && <button className="hbtn" onClick={onMap} aria-label="Topics"><Icon d={HOME} /></button>}
-      {onLang && <button className="hbtn lang-btn" onClick={onLang} aria-label="Change language"><Icon d={GLOBE} /><span>{langName}</span></button>}
-      {pct != null && <div className="hbar"><i style={{ width: `${pct}%` }} /></div>}
+      <div className="hin">
+        <h1><img className="logo" src="/logo.svg" alt="" /><span className="htitle" dir="ltr"><span className="t-full">Bahrain Driving Licence</span><span className="t-short">Driving Licence</span></span></h1>
+        {onMap && <button className="hbtn" onClick={onMap} aria-label="Topics"><Icon d={HOME} /></button>}
+        {onLang && <button className="hbtn lang-btn" onClick={onLang} aria-label="Change language"><Icon d={GLOBE} /><span>{langName}</span></button>}
+        {pct != null && <div className="hbar"><i style={{ width: `${pct}%` }} /></div>}
+      </div>
     </header>
   );
 }
