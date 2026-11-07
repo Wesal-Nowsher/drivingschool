@@ -2,7 +2,11 @@
 import { useEffect, useState } from "react";
 import { I18N } from "@/lib/i18n";
 import { REG } from "@/lib/reg-i18n";
+import { UI } from "@/lib/ui-i18n";
 import { CONFIG } from "@/lib/config";
+import Art from "@/components/Art";
+import Register from "@/components/Register";
+import { LessonScene, Roundabout } from "@/components/Scenes";
 
 const F = CONFIG.fees;
 const MEDIA = {
@@ -15,177 +19,247 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
 };
 
+// The guided journey, in order.
+const FLOW = [
+  "welcome", ...[0, 1, 2, 3, 4, 5, 6].map((i) => `step${i}`), "costs", "docs", "register",
+  "learn", ...[0, 1, 2, 3, 4, 5, 6, 7].map((i) => `lesson${i}`), "quiz", "finish",
+];
+const PART1_END = FLOW.indexOf("register"), PART2_END = FLOW.indexOf("lesson7");
+
 export default function Home() {
   const [lang, setLangState] = useState(null);
-  const [view, setView] = useState({ name: "lang" });
-  const [done, setDone] = useState([]);
+  const [screen, setScreen] = useState("lang"); // "lang" | "map" | FLOW item
+  const [maxPos, setMaxPos] = useState(0);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const saved = store.get("lang", null);
-    setDone(store.get("done", []));
-    if (saved && I18N[saved]) { setLangState(saved); setView({ name: "home" }); }
+    setMaxPos(store.get("maxPos", 0));
+    if (saved && I18N[saved]) { setLangState(saved); setScreen(store.get("maxPos", 0) > 0 ? "map" : "welcome"); }
     setReady(true);
   }, []);
-
   useEffect(() => {
     if (!lang) return;
     document.documentElement.lang = lang;
     document.documentElement.dir = I18N[lang].dir;
   }, [lang]);
 
-  const go = (name, extra = {}) => { setView({ name, ...extra }); window.scrollTo(0, 0); };
-  const setLang = (code) => { setLangState(code); store.set("lang", code); go("home"); };
+  const show = (s) => {
+    setScreen(s); window.scrollTo(0, 0);
+    const p = FLOW.indexOf(s);
+    if (p > maxPos) { setMaxPos(p); store.set("maxPos", p); }
+  };
+  const next = () => show(FLOW[Math.min(FLOW.length - 1, FLOW.indexOf(screen) + 1)]);
+  const prev = () => { const p = FLOW.indexOf(screen); p > 0 ? show(FLOW[p - 1]) : show("map"); };
+  const setLang = (code) => { setLangState(code); store.set("lang", code); show(maxPos > 0 ? "map" : "welcome"); };
 
   if (!ready) return null;
-  const T = lang ? I18N[lang] : null;
-  const R = lang ? REG[lang] : null;
+  if (!lang || screen === "lang") return (<><Header /><main><LangScreen onPick={setLang} /></main></>);
 
+  const T = I18N[lang], R = REG[lang], U = UI[lang];
+  const pos = FLOW.indexOf(screen);
+  const ctx = { T, R, U, lang, next, prev, show };
+  const Nav = ({ label, onNext = next, back = true }) => (
+    <div className="nav">
+      {back && <button className="btn" onClick={prev} aria-label={T.ui.back}>{T.dir === "rtl" ? "→" : "←"}</button>}
+      <button className="btn primary big" onClick={onNext}>{label || T.ui.next} {T.dir === "rtl" ? "←" : "→"}</button>
+    </div>
+  );
+  ctx.Nav = Nav;
+
+  let body;
+  if (screen === "map") body = <JourneyMap {...ctx} maxPos={maxPos} />;
+  else if (screen === "welcome") body = (<>
+    <Art name="welcome" />
+    <div className="card"><h2>{T.welcome.title}</h2><p>{T.welcome.text}</p></div>
+    <Nav label={U.startJourney} back={false} />
+  </>);
+  else if (screen.startsWith("step")) {
+    const i = +screen.slice(4), s = T.steps[i];
+    body = (<>
+      <p className="kicker">{U.part1} · {U.stepOf} {i + 1} {U.of} {T.steps.length}</p>
+      <Art name={`step${i}`} label={s.t} />
+      <div className="card"><h3><span className="num">{i + 1}</span>{s.t}</h3><p className="lead">{s.d}</p></div>
+      <Nav />
+    </>);
+  } else if (screen === "costs") body = <Costs {...ctx} />;
+  else if (screen === "docs") body = <Docs {...ctx} />;
+  else if (screen === "register") body = <RegisterStep {...ctx} />;
+  else if (screen === "learn") body = (<>
+    <p className="kicker">{U.part2}</p>
+    <div className="card"><h2>📘 {T.menu.guide}</h2><p className="lead">{U.learnIntro}</p></div>
+    <div className="lesson-list">{T.lessons.map((l, i) => (
+      <button key={i} className="btn" onClick={() => show(`lesson${i}`)}><span className="num">{i + 1}</span>{l.t}{maxPos > FLOW.indexOf(`lesson${i}`) && <span className="tick">✓</span>}</button>))}</div>
+    <Nav label={U.startJourney} />
+  </>);
+  else if (screen.startsWith("lesson")) body = <Lesson key={screen} {...ctx} i={+screen.slice(6)} />;
+  else if (screen === "quiz") body = <Quiz {...ctx} />;
+  else if (screen === "finish") body = (<>
+    <Art name="step6" />
+    <div className="card center"><h2>🎉 {U.finish}</h2></div>
+    {CONFIG.whatsapp && <a className="btn wa big" href={`https://wa.me/${CONFIG.whatsapp}`} target="_blank" rel="noopener noreferrer">💬 {T.ui.whatsapp}</a>}
+    <button className="btn" onClick={() => show("map")}>🗺️ {U.journey}</button>
+  </>);
+
+  const pct = Math.round((Math.max(pos, 0) / (FLOW.length - 1)) * 100);
+  return (<>
+    <Header onLang={() => setScreen("lang")} onMap={screen !== "map" ? () => show("map") : null} pct={screen === "map" ? null : pct} />
+    <main>{body}</main>
+  </>);
+}
+
+function Header({ onLang, onMap, pct }) {
   return (
-    <>
-      <header>
-        <h1>🚗 Bahrain Driving Licence</h1>
-        {lang && view.name !== "lang" && <button onClick={() => go("lang")} aria-label="Language">🌐</button>}
-      </header>
-      <main>
-        {view.name === "lang" || !T ? <LangScreen onPick={setLang} /> :
-         view.name === "home" ? <HomeScreen T={T} R={R} done={done} go={go} /> :
-         view.name === "steps" ? <Steps T={T} i={view.i ?? 0} go={go} /> :
-         view.name === "costs" ? <Costs T={T} go={go} /> :
-         view.name === "docs" ? <Docs T={T} go={go} /> :
-         view.name === "guide" ? <Guide T={T} done={done} go={go} /> :
-         view.name === "lesson" ? <Lesson T={T} i={view.i} go={go} onDone={(i) => {
-            const d = done.includes(i) ? done : [...done, i]; setDone(d); store.set("done", d);
-            i < T.lessons.length - 1 ? go("lesson", { i: i + 1 }) : go("guide");
-          }} /> :
-         view.name === "quiz" ? <Quiz T={T} go={go} /> :
-         view.name === "map" ? <MapView T={T} go={go} /> :
-         view.name === "register" ? <Register T={T} R={R} lang={lang} go={go} /> : null}
-      </main>
-    </>
+    <header>
+      <h1>🚗 Bahrain Driving Licence</h1>
+      {onMap && <button onClick={onMap} aria-label="Journey">🗺️</button>}
+      {onLang && <button onClick={onLang} aria-label="Language">🌐</button>}
+      {pct != null && <div className="hbar"><i style={{ width: `${pct}%` }} /></div>}
+    </header>
   );
 }
 
-const HomeBtn = ({ T, go }) => <button className="btn" onClick={() => go("home")}>🏠 {T.ui.home}</button>;
-const WaBtn = ({ T }) => CONFIG.whatsapp
-  ? <a className="btn wa" href={`https://wa.me/${CONFIG.whatsapp}`} target="_blank" rel="noopener noreferrer">💬 {T.ui.whatsapp}</a> : null;
-
 function LangScreen({ onPick }) {
+  const flags = { en: "🇬🇧", ar: "🇧🇭", ur: "🇵🇰", hi: "🇮🇳", ml: "🌴", fa: "🇮🇷" };
   return (<>
-    <div className="card" style={{ textAlign: "center" }}>
-      <div style={{ fontSize: 44 }}>🚗🇧🇭</div>
+    <div className="card center">
+      <div style={{ fontSize: 48 }}>🚗</div>
       <h2>Choose your language</h2>
       <p className="muted">اختر لغتك · اپنی زبان منتخب کریں · अपनी भाषा चुनें · ഭാഷ തിരഞ്ഞെടുക്കുക · زبان خود را انتخاب کنید</p>
     </div>
-    {Object.keys(I18N).map((k) => <button key={k} className="btn lang" onClick={() => onPick(k)}>{I18N[k].name}</button>)}
-  </>);
-}
-
-function HomeScreen({ T, R, done, go }) {
-  const m = T.menu, pct = Math.round((done.length / T.lessons.length) * 100);
-  return (<>
-    <div className="card"><h2>{T.welcome.title}</h2><p>{T.welcome.text}</p></div>
-    <button className="btn primary" onClick={() => go("register")}>📝 {R.menu}</button>
-    <button className="btn" onClick={() => go("steps", { i: 0 })}>📋 {m.steps}</button>
-    <button className="btn" onClick={() => go("costs")}>💰 {m.costs}</button>
-    <button className="btn" onClick={() => go("docs")}>🪪 {m.docs}</button>
-    <button className="btn" onClick={() => go("guide")}>📘 {m.guide}
-      <div className="bar"><i style={{ width: `${pct}%` }} /></div>
-      <span className="muted">{T.ui.progress}: {done.length}/{T.lessons.length}</span></button>
-    <button className="btn" onClick={() => go("quiz")}>❓ {m.quiz}</button>
-    <button className="btn" onClick={() => go("map")}>🗺️ {m.map}</button>
-    <WaBtn T={T} />
-    <p className="muted" style={{ marginTop: 8 }}>{T.ui.disclaimer}</p>
-  </>);
-}
-
-function Steps({ T, i, go }) {
-  const s = T.steps[i], n = T.steps.length;
-  return (<>
-    <div className="dots">{T.steps.map((_, j) => <i key={j} className={j <= i ? "on" : ""} />)}</div>
-    <div className="card"><h3><span className="num">{i + 1}</span>{s.t}</h3><p>{s.d}</p></div>
-    <div className="row">
-      {i > 0 && <button className="btn" onClick={() => go("steps", { i: i - 1 })}>{T.ui.back}</button>}
-      {i < n - 1
-        ? <button className="btn primary" onClick={() => go("steps", { i: i + 1 })}>{T.ui.next}</button>
-        : <button className="btn primary" onClick={() => go("home")}>{T.ui.done} ✓</button>}
+    <div className="lang-grid">
+      {Object.keys(I18N).map((k) => <button key={k} className="btn lang" onClick={() => onPick(k)}><span>{flags[k]}</span>{I18N[k].name}</button>)}
     </div>
   </>);
 }
 
-function Costs({ T, go }) {
-  const c = T.costs, u = T.ui, cls = F.hours * F.perHour;
-  const total = F.eyeTest + F.learningBook + F.examAppointment + cls + F.licenseCard;
-  const Row = ({ label, sub, v }) => <tr><td>{label}{sub && <div className="muted">{sub}</div>}</td><td className="amt">{v} {u.bd}</td></tr>;
+function JourneyMap({ T, U, show, maxPos }) {
+  const resume = FLOW[Math.min(maxPos, FLOW.length - 1)];
+  const Item = ({ s, icon, label }) => {
+    const p = FLOW.indexOf(s), done = maxPos > p, current = maxPos === p;
+    return <button className={`stop ${done ? "done" : ""} ${current ? "current" : ""}`} onClick={() => show(s)}>
+      <span className="dot">{done ? "✓" : icon}</span><span>{label}</span></button>;
+  };
   return (<>
+    <h2>🗺️ {U.journey}</h2>
+    <button className="btn primary big" onClick={() => show(resume)}>▶ {U.continue}</button>
+    <div className="card">
+      <p className="kicker">{U.part1}</p>
+      <div className="path">
+        <Item s="welcome" icon="👋" label={T.welcome.title} />
+        {T.steps.map((s, i) => <Item key={i} s={`step${i}`} icon={i + 1} label={s.t} />)}
+        <Item s="costs" icon="💰" label={T.menu.costs} />
+        <Item s="docs" icon="🪪" label={T.menu.docs} />
+        <Item s="register" icon="📝" label={REG_title(T)} />
+      </div>
+    </div>
+    <div className="card">
+      <p className="kicker">{U.part2}</p>
+      <div className="path">{T.lessons.map((l, i) => <Item key={i} s={`lesson${i}`} icon={i + 1} label={l.t} />)}</div>
+    </div>
+    <div className="card">
+      <p className="kicker">{U.part3}</p>
+      <div className="path"><Item s="quiz" icon="❓" label={T.menu.quiz} /></div>
+    </div>
+    {CONFIG.whatsapp && <a className="btn wa" href={`https://wa.me/${CONFIG.whatsapp}`} target="_blank" rel="noopener noreferrer">💬 {T.ui.whatsapp}</a>}
+    <p className="muted">{T.ui.disclaimer}</p>
+  </>);
+}
+const REG_title = (T) => REG[Object.keys(I18N).find((k) => I18N[k] === T)].menu;
+
+function Costs({ T, U, Nav }) {
+  const c = T.costs, u = T.ui, cls = F.hours * F.perHour;
+  const items = [["👁️", c.eye, F.eyeTest], ["📕", c.book, F.learningBook], ["📝", c.exam, F.examAppointment],
+    ["🚗", c.classes, cls, `${F.hours} ${u.hours} × ${F.perHour} ${u.bd}`], ["🪪", c.card, F.licenseCard]];
+  const [open, setOpen] = useState(0);
+  const shown = items.slice(0, open);
+  const total = shown.reduce((s, x) => s + x[2], 0);
+  return (<>
+    <p className="kicker">{U.part1}</p>
+    <Art name="costs" />
     <h2>💰 {T.menu.costs}</h2>
     <div className="card"><table><tbody>
-      <Row label={c.eye} v={F.eyeTest} />
-      <Row label={c.book} v={F.learningBook} />
-      <Row label={c.exam} v={F.examAppointment} />
-      <Row label={c.classes} sub={`${F.hours} ${u.hours} × ${F.perHour} ${u.bd} ${u.perHour}`} v={cls} />
-      <Row label={c.card} v={F.licenseCard} />
+      {shown.map(([ic, l, v, sub]) => <tr key={l} className="pop"><td>{ic} {l}{sub && <div className="muted">{sub}</div>}</td><td className="amt">{v} {u.bd}</td></tr>)}
       <tr className="total"><td>{u.total}</td><td className="amt">{total} {u.bd}</td></tr>
     </tbody></table></div>
-    <div className="card"><p>💳 {u.payNote}</p></div>
-    <button className="btn primary" onClick={() => go("register")}>📝 {REG_menu(T)}</button>
-    <HomeBtn T={T} go={go} />
+    {open < items.length
+      ? <button className="btn primary big" onClick={() => setOpen(open + 1)}>➕ {items[open][1]}</button>
+      : <><div className="card"><p>💳 {u.payNote}</p></div><Nav /></>}
   </>);
 }
-const REG_menu = (T) => REG[Object.keys(I18N).find((k) => I18N[k] === T)].menu;
 
-function Docs({ T, go }) {
+function Docs({ T, U, Nav }) {
+  const [have, setHave] = useState(() => store.get("docs", []));
+  const toggle = (i) => { const h = have.includes(i) ? have.filter((x) => x !== i) : [...have, i]; setHave(h); store.set("docs", h); };
   return (<>
+    <p className="kicker">{U.part1}</p>
+    <Art name="docs" />
     <h2>🪪 {T.menu.docs}</h2>
-    <div className="card"><ul>{T.docs.map((d) => <li key={d}>{d}</li>)}</ul></div>
-    <HomeBtn T={T} go={go} />
+    <p className="muted">{U.checkAll}</p>
+    {T.docs.map((d, i) => (
+      <button key={i} className={`btn check ${have.includes(i) ? "on" : ""}`} onClick={() => toggle(i)}>
+        <span className="box">{have.includes(i) ? "✓" : ""}</span>{d}</button>))}
+    <Nav />
   </>);
 }
 
-function Guide({ T, done, go }) {
+function RegisterStep({ R, U, lang, next, prev }) {
+  const [done, setDone] = useState(() => store.get("registered", false));
+  if (done) return (<>
+    <div className="card center"><div style={{ fontSize: 48 }}>✅</div><p className="lead">{R.success}</p></div>
+    <button className="btn primary big" onClick={next}>{U.continue} →</button>
+  </>);
   return (<>
-    <h2>📘 {T.menu.guide}</h2>
-    {T.lessons.map((l, i) => (
-      <button key={i} className="btn" style={{ display: "flex", alignItems: "center" }} onClick={() => go("lesson", { i })}>
-        <span className="num">{i + 1}</span>{l.t}{done.includes(i) && <span className="tick">✓</span>}
-      </button>))}
-    <HomeBtn T={T} go={go} />
+    <p className="kicker">{U.regAsk}</p>
+    <Register R={R} lang={lang} onDone={() => { store.set("registered", true); setDone(true); window.scrollTo(0, 0); }}
+      footer={<div className="nav"><button type="button" className="btn" onClick={prev}>←</button><button type="button" className="btn" onClick={next}>{U.skip} →</button></div>} />
   </>);
 }
 
-function Lesson({ T, i, go, onDone }) {
-  const l = T.lessons[i], n = T.lessons.length;
+function Lesson({ T, U, i, next, Nav }) {
+  const l = T.lessons[i];
+  const [active, setActive] = useState(null);
+  const [seen, setSeen] = useState([]);
+  const tap = (b) => { setActive(b); setSeen((s) => (s.includes(b) ? s : [...s, b])); };
+  const all = seen.length >= l.p.length;
+  const onNext = () => {
+    if (all) return next();
+    const n = l.p.findIndex((_, k) => !seen.includes(k));
+    tap(n);
+  };
   return (<>
-    <div className="card">
-      <h3><span className="num">{i + 1}</span>{l.t}</h3>
-      <ul>{l.p.map((p) => <li key={p}>{p}</li>)}</ul>
-      {(MEDIA[i] || []).map((m) => m.startsWith("img:")
-        ? <img key={m} src={m.slice(4)} alt="" loading="lazy" />
-        : <video key={m} src={m.slice(4)} controls playsInline preload="metadata" />)}
-    </div>
-    <div className="row">
-      <button className="btn" onClick={() => go("guide")}>{T.ui.back}</button>
-      <button className="btn primary" onClick={() => onDone(i)}>{i < n - 1 ? T.ui.next : T.ui.done} ✓</button>
-    </div>
+    <p className="kicker">{U.part2} · {i + 1}/{T.lessons.length}</p>
+    <h2><span className="num">{i + 1}</span>{l.t}</h2>
+    {i === 2 ? <Roundabout U={U} onTap={tap} /> : <LessonScene index={i} active={active} seen={seen} onTap={tap} />}
+    {active === null
+      ? <div className="card hint">{U.tapHint}</div>
+      : <div className="card rule" key={active}><span className="num">{active + 1}</span><p className="lead">{l.p[active]}</p></div>}
+    <div className="dots">{l.p.map((_, k) => <i key={k} className={seen.includes(k) ? "on" : ""} onClick={() => tap(k)} />)}</div>
+    {all && <div className="card ok">🎉 {U.seenAll}</div>}
+    {all && (MEDIA[i] || []).map((m) => m.startsWith("img:")
+      ? <img key={m} className="media" src={m.slice(4)} alt="" loading="lazy" />
+      : <video key={m} className="media" src={m.slice(4)} controls playsInline preload="metadata" />)}
+    <Nav onNext={onNext} label={all ? T.ui.next : `${T.ui.next} (${seen.length}/${l.p.length})`} />
   </>);
 }
 
-function Quiz({ T, go }) {
+function Quiz({ T, U, next }) {
   const [i, setI] = useState(0);
   const [score, setScore] = useState(0);
   const [picked, setPicked] = useState(null);
   if (i >= T.quiz.length) return (<>
-    <div className="card" style={{ textAlign: "center" }}>
+    <div className="card center">
       <h2>{T.ui.score}</h2>
-      <div style={{ fontSize: 44, fontWeight: 700, color: "var(--red)" }}>{score} / {T.quiz.length}</div>
+      <div className="score">{score} / {T.quiz.length}</div>
+      <p>{"⭐".repeat(Math.round((score / T.quiz.length) * 5))}</p>
     </div>
-    <button className="btn primary" onClick={() => { setI(0); setScore(0); setPicked(null); }}>{T.ui.retry}</button>
-    <HomeBtn T={T} go={go} />
+    <button className="btn primary big" onClick={next}>{U.continue} →</button>
+    <button className="btn" onClick={() => { setI(0); setScore(0); setPicked(null); }}>🔄 {T.ui.retry}</button>
   </>);
   const q = T.quiz[i];
   return (<>
-    <p className="muted">{i + 1} / {T.quiz.length}</p>
-    <div className="card"><h3>{q.q}</h3></div>
+    <p className="kicker">{U.part3} · {i + 1}/{T.quiz.length}</p>
+    <div className="card"><h3>❓ {q.q}</h3></div>
     {q.o.map((o, j) => {
       const cls = picked === null ? "" : j === q.a ? "ok" : j === picked ? "bad" : "";
       return <button key={j} className={`btn opt ${cls}`} disabled={picked !== null}
@@ -193,71 +267,7 @@ function Quiz({ T, go }) {
     })}
     {picked !== null && (<>
       <div className="card"><p>{picked === q.a ? `✅ ${T.ui.correct}` : `❌ ${T.ui.wrong} ${q.o[q.a]}`}</p></div>
-      <button className="btn primary" onClick={() => { setI(i + 1); setPicked(null); }}>{T.ui.next}</button>
+      <button className="btn primary big" onClick={() => { setI(i + 1); setPicked(null); }}>{T.ui.next} →</button>
     </>)}
   </>);
-}
-
-function MapView({ T, go }) {
-  return (<>
-    <h2>🗺️ {T.menu.map}</h2>
-    <div className="card"><img src="/assets/school-map.jpg" alt="" /></div>
-    <HomeBtn T={T} go={go} />
-  </>);
-}
-
-function Chips({ value, onChange, options }) {
-  return <div className="chips">{options.map(([k, label]) =>
-    <button type="button" key={k} className={`chip ${value === k ? "on" : ""}`} onClick={() => onChange(k)}>{label}</button>)}</div>;
-}
-
-function Register({ T, R, lang, go }) {
-  const [f, setF] = useState({ name: "", phone: "+973 ", nationality: "", area: "", gear: "", time: "", licence: "", notes: "", website: "" });
-  const [state, setState] = useState("idle");
-  const [err, setErr] = useState("");
-  const set = (k) => (v) => setF({ ...f, [k]: typeof v === "string" ? v : v.target.value });
-
-  async function submit(e) {
-    e.preventDefault();
-    if (!f.name.trim() || f.phone.replace(/\D/g, "").length < 7) { setErr(R.required); return; }
-    setErr(""); setState("sending");
-    try {
-      const res = await fetch("/api/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...f, lang }) });
-      if (!res.ok) throw new Error();
-      setState("done"); store.set("registered", true); window.scrollTo(0, 0);
-    } catch { setState("idle"); setErr(R.error); }
-  }
-
-  if (state === "done") return (<>
-    <div className="card" style={{ textAlign: "center" }}><div style={{ fontSize: 44 }}>✅</div><p>{R.success}</p></div>
-    <button className="btn primary" onClick={() => go("guide")}>📘 {T.menu.guide}</button>
-    <HomeBtn T={T} go={go} />
-  </>);
-
-  return (<form onSubmit={submit}>
-    <h2>📝 {R.title}</h2>
-    <div className="card">
-      <p className="muted">{R.intro}</p>
-      <label htmlFor="name">{R.name} *</label>
-      <input id="name" value={f.name} onChange={set("name")} maxLength={100} autoComplete="name" required />
-      <label htmlFor="phone">{R.phone} *</label>
-      <input id="phone" value={f.phone} onChange={set("phone")} inputMode="tel" dir="ltr" autoComplete="tel" maxLength={30} required />
-      <label htmlFor="nat">{R.nationality}</label>
-      <input id="nat" value={f.nationality} onChange={set("nationality")} maxLength={60} />
-      <label htmlFor="area">{R.area}</label>
-      <input id="area" value={f.area} onChange={set("area")} maxLength={80} />
-      <label>{R.gear}</label>
-      <Chips value={f.gear} onChange={set("gear")} options={[["auto", R.auto], ["manual", R.manual]]} />
-      <label>{R.time}</label>
-      <Chips value={f.time} onChange={set("time")} options={[["morning", R.morning], ["afternoon", R.afternoon], ["evening", R.evening]]} />
-      <label>{R.licence}</label>
-      <Chips value={f.licence} onChange={set("licence")} options={[["yes", R.yes], ["no", R.no]]} />
-      <label htmlFor="notes">{R.notes}</label>
-      <textarea id="notes" rows={3} value={f.notes} onChange={set("notes")} maxLength={500} />
-      <input className="hp" tabIndex={-1} autoComplete="off" aria-hidden="true" value={f.website} onChange={set("website")} />
-    </div>
-    {err && <div className="card" style={{ color: "var(--bad)" }}>{err}</div>}
-    <button className="btn primary" type="submit" disabled={state === "sending"}>{state === "sending" ? R.sending : R.submit}</button>
-    <HomeBtn T={T} go={go} />
-  </form>);
 }
