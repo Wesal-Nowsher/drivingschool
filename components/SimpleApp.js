@@ -155,6 +155,16 @@ export default function SimpleApp() {
 
   return (<>
     <Header langName={T.name} onLang={changeLang} />
+    <nav className="s-tabs" aria-label="Sections">
+      <div className="s-tabs-in">
+        {[["pay", H.pay, () => go("pay")],
+          ["process", H.process, () => go("step", 0)],
+          ["learn", H.lessons, () => go("lesson", 0)]].map(([k, label, fn]) => {
+          const active = k === "pay" ? view.name === "pay" : k === "process" ? view.name === "step" || view.name === "done" : view.name === "lesson" || view.name === "finish";
+          return <button key={k} className={`s-tab ${active ? "on" : ""}`} aria-current={active ? "page" : undefined} onClick={fn}>{label}</button>;
+        })}
+      </div>
+    </nav>
     <div className="s-wrap">{body}</div>
   </>);
 }

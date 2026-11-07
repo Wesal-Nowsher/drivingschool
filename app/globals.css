@@ -258,3 +258,10 @@ body:has(.s-wrap){background:#fff}
 .s-store{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;background:#111;color:#fff;text-decoration:none;font:600 15px system-ui,-apple-system,sans-serif;line-height:1.15}
 .s-store small{display:block;font-size:10px;font-weight:400;opacity:.8}
 @media (prefers-color-scheme:dark){.s-steps li{border-color:#333}.s-steps li::before{border-color:#eee}.s-store{background:#eee;color:#111}}
+/* simple: section tabs */
+.s-tabs{border-bottom:1px solid #e5e5e5;background:#fff;position:sticky;top:0;z-index:5}
+.s-tabs-in{max-width:560px;margin:0 auto;padding:0 8px;display:flex}
+.s-tab{flex:1;background:none;border:0;border-bottom:2px solid transparent;padding:12px 6px;font:inherit;font-size:15px;color:#666;cursor:pointer;line-height:1.4}
+.s-tab.on{color:#111;font-weight:700;border-bottom-color:#111}
+.s-tab:hover{color:#111}
+@media (prefers-color-scheme:dark){.s-tabs{background:#111;border-color:#333}.s-tab{color:#999}.s-tab.on,.s-tab:hover{color:#eee;border-bottom-color:#eee}}
