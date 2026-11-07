@@ -95,13 +95,32 @@ export default function SimpleApp() {
       </button>
     </>);
   } else if (view.name === "step") {
-    const i = view.i, s = T.steps[i], n = T.steps.length;
+    // Page 0 = steps 1–4, page 1 = steps 5–7
+    const PAGES = [[0, 1, 2, 3], [4, 5, 6]];
+    const pg = view.i, idx = PAGES[pg], n = T.steps.length;
     body = (<>
-      <p className="s-kicker">{U.stepOf} {i + 1} {U.of} {n}</p>
-      <div className="s-progress"><i style={{ width: `${((i + 1) / n) * 100}%` }} /></div>
-      <h1 className="s-h1">{s.t}</h1>
-      <p className="s-text">{s.d}</p>
-      <Nav onBack={() => (i > 0 ? go("step", i - 1) : go("pay"))} onNext={() => (i < n - 1 ? go("step", i + 1) : go("done"))} />
+      <p className="s-kicker s-num">{U.stepOf} {idx[0] + 1}–{idx[idx.length - 1] + 1} {U.of} {n}</p>
+      <div className="s-progress"><i style={{ width: `${((idx[idx.length - 1] + 1) / n) * 100}%` }} /></div>
+      <ol className="s-steps" start={idx[0] + 1}>
+        {idx.map((k) => (
+          <li key={k}>
+            <h2 className="s-step-t">{T.steps[k].t}</h2>
+            <p className="s-text">{T.steps[k].d}</p>
+            {k === 0 && (
+              <div className="s-stores">
+                <a className="s-store" href={CONFIG.appLinks.ios} target="_blank" rel="noopener noreferrer">
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.2-.8s1.9.8 3.2.8c1.3 0 2.1-1.2 2.9-2.4.9-1.4 1.3-2.7 1.3-2.8 0 0-2.5-1-2.5-3.9zM14 5.6c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></svg>
+                  <span><small>Download on the</small>App Store</span>
+                </a>
+                <a className="s-store" href={CONFIG.appLinks.android} target="_blank" rel="noopener noreferrer">
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M3.6 2.3c-.2.2-.3.6-.3 1v17.4c0 .4.1.8.3 1l9.7-9.7-9.7-9.7zm10.5 10.5 2.9 2.9-11.6 6.6 8.7-9.5zm0-1.6L5.4 1.7 17 8.3l-2.9 2.9zm4.1-2.2 3.2 1.8c.9.5.9 1.9 0 2.4l-3.2 1.8-3.1-3 3.1-3z"/></svg>
+                  <span><small>Get it on</small>Google Play</span>
+                </a>
+              </div>
+            )}
+          </li>))}
+      </ol>
+      <Nav onBack={() => (pg > 0 ? go("step", pg - 1) : go("pay"))} onNext={() => (pg < PAGES.length - 1 ? go("step", pg + 1) : go("done"))} />
     </>);
   } else if (view.name === "done") {
     body = (<>
@@ -111,7 +130,7 @@ export default function SimpleApp() {
         <span className="s-cta-text"><b>{H.startLearn}</b><small>{T.menu.guide}</small></span>
         <span className="s-cta-arrow">{fwd}</span>
       </button>
-      <button className="s-link" onClick={() => go("step", T.steps.length - 1)}>{bwd} {u.back}</button>
+      <button className="s-link" onClick={() => go("step", 1)}>{bwd} {u.back}</button>
     </>);
   } else if (view.name === "lesson") {
     const i = view.i, l = T.lessons[i], n = T.lessons.length;

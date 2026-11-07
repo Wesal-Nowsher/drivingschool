@@ -248,3 +248,13 @@ body:has(.s-wrap){background:#fff}
 .s-photo-illus{max-height:320px;object-fit:contain;background:#fff}
 @media (prefers-color-scheme:dark){.s-illus{border-color:#333;filter:grayscale(1) brightness(.9)}}
 .s-illus.s-color{filter:none}
+.s-steps{list-style:none;margin:0;padding:0;counter-reset:st}
+.s-steps li{position:relative;padding-inline-start:44px;padding-bottom:22px;margin-bottom:22px;border-bottom:1px solid #e5e5e5}
+.s-steps li:last-child{border-bottom:0;margin-bottom:0}
+.s-steps li::before{content:counter(list-item);position:absolute;inset-inline-start:0;top:2px;width:30px;height:30px;border-radius:50%;border:1.5px solid #111;display:flex;align-items:center;justify-content:center;font:600 14px system-ui,sans-serif}
+.s-step-t{font-size:18px;font-weight:700;margin:0 0 6px}
+.s-steps .s-text{font-size:16px}
+.s-stores{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.s-store{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;background:#111;color:#fff;text-decoration:none;font:600 15px system-ui,-apple-system,sans-serif;line-height:1.15}
+.s-store small{display:block;font-size:10px;font-weight:400;opacity:.8}
+@media (prefers-color-scheme:dark){.s-steps li{border-color:#333}.s-steps li::before{border-color:#eee}.s-store{background:#eee;color:#111}}
