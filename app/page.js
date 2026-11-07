@@ -122,7 +122,7 @@ export default function Home() {
   const pct = sp < 0 || seq.length < 2 ? null : Math.round((sp / Math.max(1, seq.length - 1)) * 100);
   return (<>
     <Header onLang={() => setScreen("lang")} onMap={screen !== "hub" ? () => show("hub", "full") : null} pct={pct} />
-    <main>{body}</main>
+    <main className={screen === "hub" ? "hub-main" : ""}>{body}</main>
   </>);
 }
 
@@ -189,6 +189,13 @@ function JourneyMap({ T, U, show, maxPos }) {
 }
 const REG_title = (T) => REG[Object.keys(I18N).find((k) => I18N[k] === T)].menu;
 
+// Forward arrow; CSS mirrors it in right-to-left languages.
+const GoArrow = () => (
+  <svg className="go-arrow" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+    <path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 function Hub({ T, U, H, show, openCat, maxPos }) {
   const cats = [
     ["process", "📋", H.process, H.processSub],
@@ -206,7 +213,7 @@ function Hub({ T, U, H, show, openCat, maxPos }) {
     <button className="complete" onClick={() => show(maxPos > 0 ? FLOW[maxPos] : "welcome", "full")}>
       <span className="c-ic">🧭</span>
       <span><b>{maxPos > 0 ? H.resume : H.complete}</b><small>{H.completeSub}</small></span>
-      <span className="c-go">{T.dir === "rtl" ? "←" : "→"}</span>
+      <span className="c-go"><GoArrow /></span>
     </button>
     <button className="allin" onClick={() => openCat("gov")}>
       <span>💰 {H.allIn}</span><b>{allIn()} <small>{T.ui.bd}</small></b>
@@ -220,7 +227,7 @@ function Hub({ T, U, H, show, openCat, maxPos }) {
           <small className="cat-s">{sub}</small>
           {price != null
             ? <span className="cat-price">{price} <small>{T.ui.bd}</small></span>
-            : <span className="cat-go">{T.dir === "rtl" ? "←" : "→"}</span>}
+            : <span className="cat-go"><GoArrow /></span>}
         </button>))}
     </div>
     {CONFIG.whatsapp && <a className="btn wa" href={`https://wa.me/${CONFIG.whatsapp}`} target="_blank" rel="noopener noreferrer">💬 {T.ui.whatsapp}</a>}
