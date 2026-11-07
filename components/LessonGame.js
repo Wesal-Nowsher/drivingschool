@@ -1,7 +1,7 @@
 "use client";
 // One lesson as a small game: discover the rules on the picture, then answer a quick challenge.
 import { useState } from "react";
-import { LessonScene, Roundabout } from "@/components/Scenes";
+import { LessonScene, Roundabout, sceneHotspots } from "@/components/Scenes";
 import { GAME, LESSON_QUESTIONS } from "@/lib/game-i18n";
 
 const COLOR_LESSONS = [3, 4]; // traffic lights and signs need their colours
@@ -65,22 +65,40 @@ export default function LessonGame({ lang, T, U, i, Nav, nextLabel, onNext }) {
   // discover
   return (<div className={`s-game ${COLOR_LESSONS.includes(i) ? "color" : ""}`}>
     <p className="g-hint">{G.discover}</p>
-    {i === 2 ? <Roundabout U={U} onTap={tap} /> : <LessonScene index={i} active={active} seen={seen} onTap={tap} nonce={nonce} />}
+    <div className="g-stage">
+      {i === 2 ? <Roundabout U={U} onTap={tap} /> : <LessonScene index={i} active={active} seen={seen} onTap={tap} nonce={nonce} />}
+      {active !== null && <RulePopup key={`${active}-${nonce}`} n={active + 1} text={l.p[active]} at={i === 2 ? null : sceneHotspots(i)?.[active]} onClose={() => setActive(null)} />}
+    </div>
     <div className="g-found">
       <span>{G.found}</span>
-      <span className="g-dots">{l.p.map((_, k) => <i key={k} className={seen.includes(k) ? "on" : ""} />)}</span>
+      <span className="g-dots">{l.p.map((_, k) => <button key={k} className={`${seen.includes(k) ? "on" : ""} ${active === k ? "cur" : ""}`} disabled={!seen.includes(k)} onClick={() => tap(k)} aria-label={`${k + 1}`} />)}</span>
       <b className="s-num">{seen.length}/{l.p.length}</b>
     </div>
-    <ol className="g-rules">
-      {l.p.map((p, k) => (
-        <li key={k} className={`${seen.includes(k) ? "open" : "closed"} ${active === k ? "active" : ""}`} onClick={() => seen.includes(k) && tap(k)}>
-          <span className="g-n s-num">{k + 1}</span>
-          <span>{seen.includes(k) ? p : "?"}</span>
-        </li>))}
-    </ol>
     {allFound
       ? <button className="s-cta g-unlock" onClick={() => setPhase("challenge")}><span className="s-cta-text"><b>{G.challenge}</b><small>{questions.length} × +{PTS} {G.points}</small></span><span className="s-cta-arrow">→</span></button>
       : <p className="s-muted g-locked">🔒 {G.locked}</p>}
     <Nav onNext={onNext} nextLabel={nextLabel} />
   </div>);
+}
+
+// Speech-bubble popup over the picture, pointing at the tapped number.
+function RulePopup({ n, text, at, onClose }) {
+  let style = {}, cls = "g-pop", arrow = null;
+  if (at) {
+    const [x, y] = at, below = y <= 120;
+    const px = (x / 320) * 100, py = (y / 220) * 100;
+    style = below ? { top: `calc(${py}% + 22px)` } : { bottom: `calc(${100 - py}% + 22px)` };
+    cls += below ? " below" : " above";
+    arrow = { left: `clamp(16px, ${px}%, calc(100% - 16px))` };
+  } else {
+    cls += " fixed";
+  }
+  return (
+    <div className={cls} style={style} role="dialog" aria-live="polite">
+      {arrow && <span className="g-pop-arrow" style={arrow} />}
+      <span className="g-pop-n s-num">{n}</span>
+      <p>{text}</p>
+      <button className="g-pop-x" onClick={onClose} aria-label="Close">×</button>
+    </div>
+  );
 }

@@ -272,6 +272,9 @@ export function PlainScene({ index }) {
   return <svg viewBox="0 0 320 220" className={`s-illus ${index === 3 || index === 4 ? "s-color" : ""}`} role="img" aria-hidden="true">{sc.draw(null)}</svg>;
 }
 
+// Hotspot positions of a scene (viewBox 320x220), used to place the rule popup.
+export const sceneHotspots = (index) => SCENES[index]?.hs || null;
+
 export function LessonScene({ index, active, seen, onTap, nonce = 0 }) {
   const sc = SCENES[index];
   if (!sc) return null;
