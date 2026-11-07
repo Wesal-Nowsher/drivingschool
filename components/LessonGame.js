@@ -21,8 +21,9 @@ export default function LessonGame({ lang, T, U, i, Nav, nextLabel, onNext }) {
   const [qi, setQi] = useState(0);
   const [picked, setPicked] = useState(null);
   const [right, setRight] = useState(0);
+  const [nonce, setNonce] = useState(0);
 
-  const tap = (b) => { setActive(b); setSeen((s) => (s.includes(b) ? s : [...s, b])); };
+  const tap = (b) => { setActive(b); setNonce((n) => n + 1); setSeen((s) => (s.includes(b) ? s : [...s, b])); };
   const allFound = seen.length >= l.p.length;
 
   if (phase === "complete") {
@@ -64,7 +65,7 @@ export default function LessonGame({ lang, T, U, i, Nav, nextLabel, onNext }) {
   // discover
   return (<div className={`s-game ${COLOR_LESSONS.includes(i) ? "color" : ""}`}>
     <p className="g-hint">{G.discover}</p>
-    {i === 2 ? <Roundabout U={U} onTap={tap} /> : <LessonScene index={i} active={active} seen={seen} onTap={tap} />}
+    {i === 2 ? <Roundabout U={U} onTap={tap} /> : <LessonScene index={i} active={active} seen={seen} onTap={tap} nonce={nonce} />}
     <div className="g-found">
       <span>{G.found}</span>
       <span className="g-dots">{l.p.map((_, k) => <i key={k} className={seen.includes(k) ? "on" : ""} />)}</span>
@@ -72,7 +73,7 @@ export default function LessonGame({ lang, T, U, i, Nav, nextLabel, onNext }) {
     </div>
     <ol className="g-rules">
       {l.p.map((p, k) => (
-        <li key={k} className={`${seen.includes(k) ? "open" : "closed"} ${active === k ? "active" : ""}`} onClick={() => seen.includes(k) && setActive(k)}>
+        <li key={k} className={`${seen.includes(k) ? "open" : "closed"} ${active === k ? "active" : ""}`} onClick={() => seen.includes(k) && tap(k)}>
           <span className="g-n s-num">{k + 1}</span>
           <span>{seen.includes(k) ? p : "?"}</span>
         </li>))}
