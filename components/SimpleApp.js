@@ -126,10 +126,6 @@ export default function SimpleApp() {
     body = (<>
       <h1 className="s-h1">✓ {H.procDone}</h1>
       <p className="s-text">{H.offer}</p>
-      <button className="s-cta" onClick={() => go("lesson", 0)}>
-        <span className="s-cta-text"><b>{H.startLearn}</b><small>{T.menu.guide}</small></span>
-        <span className="s-cta-arrow">{fwd}</span>
-      </button>
       <button className="s-link" onClick={() => go("step", 1)}>{bwd} {u.back}</button>
     </>);
   } else if (view.name === "lesson") {
@@ -165,6 +161,28 @@ export default function SimpleApp() {
         })}
       </div>
     </nav>
-    <div className="s-wrap">{body}</div>
+    <div className="s-wrap s-has-bar">{body}</div>
+    <BottomBar label={H.startLearn} sub={T.menu.guide} fwd={fwd} onLearn={() => go("lesson", 0)} waLabel={u.whatsapp} />
   </>);
+}
+
+// Fixed bar: "Start learning" on the start side, WhatsApp + call on the end side.
+function BottomBar({ label, sub, fwd, onLearn, waLabel }) {
+  const wa = CONFIG.whatsapp, tel = CONFIG.phone || CONFIG.whatsapp;
+  return (
+    <div className="s-bar">
+      <div className="s-bar-in">
+        <button className="s-bar-learn" onClick={onLearn}>
+          <span className="s-bar-text"><b>{label}</b></span>
+          <span aria-hidden="true">{fwd}</span>
+        </button>
+        <a className={`s-bar-ic ${wa ? "" : "off"}`} href={wa ? `https://wa.me/${wa}` : undefined} target="_blank" rel="noopener noreferrer" aria-label={waLabel} title="WhatsApp">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1-.7-.3-1.4-.7-2-1.3-.5-.5-1-1.1-1.3-1.7-.1-.2 0-.4.1-.5l.4-.5.2-.4v-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.6.6-.9 1.4-.9 2.2 0 .9.4 1.8 1 2.6 1.1 1.6 2.5 2.9 4.2 3.7.5.2 1 .4 1.4.5.5.2 1.1.2 1.6.1.6-.1 1.4-.6 1.6-1.2.1-.4.1-.8 0-1.1l-.3-.2z"/></svg>
+        </a>
+        <a className={`s-bar-ic ${tel ? "" : "off"}`} href={tel ? `tel:+${tel}` : undefined} aria-label="Call" title="Call">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
+        </a>
+      </div>
+    </div>
+  );
 }
