@@ -214,10 +214,13 @@ function Hub({ T, U, H, show, openCat, maxPos }) {
     {maxPos > 0 && <button className="btn small-link" onClick={() => show("map", "full")}>🗺️ {U.journey}</button>}
     <div className="cats">
       {cats.map(([k, ic, t, sub, price], i) => (
-        <button key={k} className="cat" onClick={() => openCat(k)}>
-          <span className="cat-n">{i + 1}</span>
-          <span className="cat-ic">{ic}</span>
-          <b>{t}</b>{price != null && <span className="cat-price">{price} <small>{T.ui.bd}</small></span>}<small>{sub}</small>
+        <button key={k} className={`cat c${i}`} onClick={() => openCat(k)}>
+          <span className="cat-head"><span className="cat-ic">{ic}</span><span className="cat-n">{i + 1}</span></span>
+          <b className="cat-t">{t}</b>
+          <small className="cat-s">{sub}</small>
+          {price != null
+            ? <span className="cat-price">{price} <small>{T.ui.bd}</small></span>
+            : <span className="cat-go">{T.dir === "rtl" ? "←" : "→"}</span>}
         </button>))}
     </div>
     {CONFIG.whatsapp && <a className="btn wa" href={`https://wa.me/${CONFIG.whatsapp}`} target="_blank" rel="noopener noreferrer">💬 {T.ui.whatsapp}</a>}
