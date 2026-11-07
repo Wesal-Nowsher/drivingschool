@@ -154,6 +154,13 @@ const SCENES = [
   },
 ];
 
+// Static, uncoloured version of a lesson picture (no hotspots) for the simple app.
+export function PlainScene({ index }) {
+  const sc = SCENES[index];
+  if (!sc) return null;
+  return <svg viewBox="0 0 320 220" className={`s-illus ${index === 3 || index === 4 ? "s-color" : ""}`} role="img" aria-hidden="true">{sc.draw({ light: 0 })}</svg>;
+}
+
 export function LessonScene({ index, active, seen, onTap }) {
   const sc = SCENES[index];
   const [st, setSt] = useState({ light: 0 });
