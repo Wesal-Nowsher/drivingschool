@@ -105,7 +105,7 @@ export default function SimpleApp() {
         {idx.map((k) => (
           <li key={k}>
             <h2 className="s-step-t">{T.steps[k].t}</h2>
-            <p className="s-text">{T.steps[k].d}</p>
+            <StepText text={T.steps[k].d} />
             {k === 0 && (
               <div className="s-stores">
                 <a className="s-store" href={CONFIG.appLinks.ios} target="_blank" rel="noopener noreferrer">
@@ -185,4 +185,18 @@ function BottomBar({ label, sub, fwd, onLearn, waLabel }) {
       </div>
     </div>
   );
+}
+
+// Renders step text; lines starting with "- " become a bullet list.
+function StepText({ text }) {
+  const lines = text.split("\n");
+  const out = [];
+  let list = null;
+  lines.forEach((ln, i) => {
+    if (ln.startsWith("- ")) {
+      if (!list) { list = []; out.push(<ul key={`u${i}`} className="s-bullets">{list}</ul>); }
+      list.push(<li key={i}>{ln.slice(2)}</li>);
+    } else { list = null; out.push(<p key={i} className="s-text">{ln}</p>); }
+  });
+  return <>{out}</>;
 }
