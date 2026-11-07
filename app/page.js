@@ -169,22 +169,33 @@ const REG_title = (T) => REG[Object.keys(I18N).find((k) => I18N[k] === T)].menu;
 
 function Costs({ T, U, Nav }) {
   const c = T.costs, u = T.ui, cls = F.hours * F.perHour;
-  const items = [["👁️", c.eye, F.eyeTest], ["📕", c.book, F.learningBook], ["📝", c.exam, F.examAppointment],
-    ["🚗", c.classes, cls, `${F.hours} ${u.hours} × ${F.perHour} ${u.bd}`], ["🪪", c.card, F.licenseCard]];
-  const [open, setOpen] = useState(0);
-  const shown = items.slice(0, open);
-  const total = shown.reduce((s, x) => s + x[2], 0);
+  const items = [
+    ["👁️", c.eye, F.eyeTest],
+    ["📕", c.book, F.learningBook],
+    ["📝", c.exam, F.examAppointment],
+    ["🚗", c.classes, cls, `${F.hours} ${u.hours} × ${F.perHour} ${u.bd}`],
+    ["🪪", c.card, F.licenseCard],
+  ];
+  const total = items.reduce((s, x) => s + x[2], 0);
   return (<>
     <p className="kicker">{U.part1}</p>
-    <Art name="costs" />
-    <h2>💰 {T.menu.costs}</h2>
-    <div className="card"><table><tbody>
-      {shown.map(([ic, l, v, sub]) => <tr key={l} className="pop"><td>{ic} {l}{sub && <div className="muted">{sub}</div>}</td><td className="amt">{v} {u.bd}</td></tr>)}
-      <tr className="total"><td>{u.total}</td><td className="amt">{total} {u.bd}</td></tr>
-    </tbody></table></div>
-    {open < items.length
-      ? <button className="btn primary big" onClick={() => setOpen(open + 1)}>➕ {items[open][1]}</button>
-      : <><div className="card"><p>💳 {u.payNote}</p></div><Nav /></>}
+    <div className="total-hero">
+      <span>💰 {T.menu.costs}</span>
+      <b>{total} <small>{u.bd}</small></b>
+    </div>
+    <div className="fees">
+      {items.map(([ic, label, v, sub]) => (
+        <div className="fee" key={label}>
+          <span className="fee-ic">{ic}</span>
+          <div className="fee-body">
+            <div className="fee-top"><span>{label}</span><b>{v} {u.bd}</b></div>
+            {sub && <div className="muted">{sub}</div>}
+            <div className="fee-bar"><i style={{ width: `${(v / total) * 100}%` }} /></div>
+          </div>
+        </div>))}
+    </div>
+    <div className="card note">💳 {u.payNote}</div>
+    <Nav />
   </>);
 }
 
