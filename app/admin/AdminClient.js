@@ -66,6 +66,7 @@ export default function AdminClient({ initial }) {
             <div className="top">
               <h3 style={{ margin: 0 }}>{r.name}</h3>
               <span className={`badge ${r.status}`}>{r.status}</span>
+              {r.source === "landing" && <span className="badge">consultation</span>}
               <span className="muted" style={{ marginInlineStart: "auto" }}>{new Date(r.createdAt).toLocaleString()}</span>
             </div>
             <div dir="ltr" style={{ fontWeight: 600 }}>{r.phone}</div>

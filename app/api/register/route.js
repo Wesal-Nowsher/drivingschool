@@ -21,6 +21,7 @@ export async function POST(req) {
     licence: pick(b.licence, ["yes", "no"]),
     notes: str(b.notes, 500),
     lang: pick(b.lang, Object.keys(I18N)) || "en",
+    source: pick(b.source, ["app", "landing"]) || "app",
   });
   return NextResponse.json({ ok: true });
 }

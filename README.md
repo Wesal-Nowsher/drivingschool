@@ -1,4 +1,10 @@
-# Bahrain Driving Licence Guide (Next.js)
+# Driving Instructor Website (Next.js)
+
+- `/` is the landing page for the instructor: hero with photo and consultation form, about, how it works, pricing, success stories, what you learn, why us, FAQ and contact. Content lives in `lib/site.js`.
+- `/v1` is the interactive multilingual student guide (below).
+- `/admin` is the instructor dashboard. Consultation requests from the landing page are tagged "consultation".
+
+## Student guide (/v1)
 
 Instructors share one link with their students. Each student picks a language (English, العربية, اردو, हिन्दी, മലയാളം, 中文) and the app takes them through:
 

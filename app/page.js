@@ -1,404 +1,225 @@
-"use client";
-import { useEffect, useState } from "react";
-import { I18N } from "@/lib/i18n";
-import { REG } from "@/lib/reg-i18n";
-import { UI } from "@/lib/ui-i18n";
-import { HUB } from "@/lib/hub-i18n";
+import Link from "next/link";
 import { CONFIG } from "@/lib/config";
-import Art from "@/components/Art";
-import Register from "@/components/Register";
-import { LessonScene, Roundabout } from "@/components/Scenes";
+import { SITE } from "@/lib/site";
+import ConsultForm from "@/components/ConsultForm";
+
+export const metadata = {
+  title: `${CONFIG.teacherName} | Driving Instructor in Bahrain`,
+  description: SITE.sub,
+};
 
 const F = CONFIG.fees;
-const MEDIA = {
-  2: ["img:/assets/roundabout-route.jpg", "vid:/assets/roundabout.mp4"],
-  6: ["vid:/assets/practice1.mp4", "vid:/assets/practice2.mp4", "vid:/assets/clip.mp4"],
-  7: ["img:/assets/school-map.jpg"],
-};
-const store = {
-  get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
-};
+const gov = F.eyeTest + F.learningBook + F.examAppointment + F.licenseCard;
+const classes = F.hours * F.perHour;
+const total = gov + classes;
 
-// The guided journey, in order.
-const FLOW = [
-  "welcome", ...[0, 1, 2, 3, 4, 5, 6].map((i) => `step${i}`), "govfees", "insfees", "docs", "register",
-  "learn", ...[0, 1, 2, 3, 4, 5, 6, 7].map((i) => `lesson${i}`), "quiz", "finish",
+const STEPS = [
+  ["Book a consultation", "Send the form or message on WhatsApp. We explain the process and plan your classes."],
+  ["Eye test & learning licence", "Book on the Mawaeid app, pass the eye test and collect your learning book and licence."],
+  ["22 hours of classes", "Practical training with your instructor, at times that suit you."],
+  ["Driving test & licence", "Take the test at the Driving School Directorate in Isa Town and collect your licence card."],
 ];
-// Single-topic paths opened from the hub; at the end they return to the hub.
-const CATS = {
-  process: [0, 1, 2, 3, 4, 5, 6].map((i) => `step${i}`),
-  gov: ["govfees"], ins: ["insfees"], docs: ["docs"],
-  lessons: ["learn", ...[0, 1, 2, 3, 4, 5, 6, 7].map((i) => `lesson${i}`)],
-  quiz: ["quiz"], register: ["register"], map: ["schoolmap"],
-};
+const LEARN = [
+  ["Before you drive", "Seat, mirrors, seat belt and safety checks."],
+  ["Lanes & speed", "Keeping right, overtaking and safe distance."],
+  ["Roundabouts", "Lanes and indicators for every exit."],
+  ["Lights & junctions", "Stop lines, yellow box, STOP and give way."],
+  ["Road signs", "What each shape and colour means."],
+  ["Reversing & parking", "Exam reverse area and parking rules."],
+];
+const WHY = [
+  ["Approved instructor", `Registered instructor code ${CONFIG.instructorCode}.`],
+  ["Clear, fixed fees", `${total} BD in total, with no hidden costs.`],
+  ["Pay your way", "Pay everything at once or per class."],
+  ["Flexible times", "Morning, afternoon or evening classes."],
+  ["Automatic or manual", "Train on the car type you need."],
+  ["Free learning guide", "Interactive lessons in 6 languages before your first class."],
+];
 
-import SimpleApp from "@/components/SimpleApp";
+const wa = CONFIG.whatsapp, tel = CONFIG.phone || CONFIG.whatsapp;
 
-export default function Page() {
-  return CONFIG.simpleMode ? <SimpleApp /> : <Home />;
-}
-
-function Home() {
-  const [lang, setLangState] = useState(null);
-  const [screen, setScreen] = useState("lang"); // "lang" | "hub" | "map" | FLOW item
-  const [mode, setMode] = useState("full"); // "full" or a CATS key
-  const [maxPos, setMaxPos] = useState(0);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    const saved = store.get("lang", null);
-    setMaxPos(store.get("maxPos", 0));
-    if (saved && I18N[saved]) { setLangState(saved); setScreen("hub"); }
-    setReady(true);
-  }, []);
-  useEffect(() => {
-    if (!lang) return;
-    document.documentElement.lang = lang;
-    document.documentElement.dir = I18N[lang].dir;
-  }, [lang]);
-
-  const show = (s, m = mode) => {
-    setScreen(s); setMode(m); window.scrollTo(0, 0);
-    const p = FLOW.indexOf(s);
-    if (m === "full" && p > maxPos) { setMaxPos(p); store.set("maxPos", p); }
-  };
-  const seq = mode === "full" ? FLOW : CATS[mode];
-  const next = () => { const p = seq.indexOf(screen); p >= 0 && p < seq.length - 1 ? show(seq[p + 1]) : show("hub"); };
-  const prev = () => { const p = seq.indexOf(screen); p > 0 ? show(seq[p - 1]) : show("hub"); };
-  const openCat = (k) => show(CATS[k][0], k);
-  const setLang = (code) => { setLangState(code); store.set("lang", code); show("hub", "full"); };
-
-  if (!ready) return null;
-  if (!lang || screen === "lang") return (<><Header /><main><LangScreen onPick={setLang} /></main></>);
-
-  const T = I18N[lang], R = REG[lang], U = UI[lang], H = HUB[lang];
-  const pos = FLOW.indexOf(screen);
-  const ctx = { T, R, U, H, lang, next, prev, show, mode, seq };
-  const Nav = ({ label, onNext = next, back = true }) => (
-    <div className="nav">
-      {back && <button className="btn" onClick={prev} aria-label={T.ui.back}>{T.dir === "rtl" ? "→" : "←"}</button>}
-      <button className="btn primary big" onClick={onNext}>{label || T.ui.next} {T.dir === "rtl" ? "←" : "→"}</button>
-    </div>
-  );
-  ctx.Nav = Nav;
-
-  let body;
-  if (screen === "hub") body = <Hub {...ctx} maxPos={maxPos} openCat={openCat} />;
-  else if (screen === "map") body = <JourneyMap {...ctx} maxPos={maxPos} />;
-  else if (screen === "schoolmap") body = (<>
-    <h2>🗺️ {H.map}</h2>
-    <img className="media" src="/assets/school-map.jpg" alt={H.map} />
-    <Nav label={H.topics} />
-  </>);
-  else if (screen === "welcome") body = (<>
-    <Art name="welcome" />
-    <div className="card"><h2>{T.welcome.title}</h2><p>{T.welcome.text}</p></div>
-    <Nav label={U.startJourney} back={false} />
-  </>);
-  else if (screen.startsWith("step")) {
-    const i = +screen.slice(4), s = T.steps[i];
-    body = (<>
-      <p className="kicker">{mode === "full" ? U.part1 : H.process} · {U.stepOf} {i + 1} {U.of} {T.steps.length}</p>
-      <Art name={`step${i}`} label={s.t} />
-      <div className="card"><h3><span className="num">{i + 1}</span>{s.t}</h3><p className="lead">{s.d}</p></div>
-      <Nav />
-    </>);
-  } else if (screen === "govfees") body = <GovFees {...ctx} />;
-  else if (screen === "insfees") body = <InsFees {...ctx} />;
-  else if (screen === "docs") body = <Docs {...ctx} />;
-  else if (screen === "register") body = <RegisterStep {...ctx} />;
-  else if (screen === "learn") body = (<>
-    <p className="kicker">{U.part2}</p>
-    <div className="card"><h2>📘 {T.menu.guide}</h2><p className="lead">{U.learnIntro}</p></div>
-    <div className="lesson-list">{T.lessons.map((l, i) => (
-      <button key={i} className="btn" onClick={() => show(`lesson${i}`)}><span className="num">{i + 1}</span>{l.t}{maxPos > FLOW.indexOf(`lesson${i}`) && <span className="tick">✓</span>}</button>))}</div>
-    <Nav label={U.startJourney} />
-  </>);
-  else if (screen.startsWith("lesson")) body = <Lesson key={screen} {...ctx} i={+screen.slice(6)} />;
-  else if (screen === "quiz") body = <Quiz {...ctx} />;
-  else if (screen === "finish") body = (<>
-    <Art name="step6" />
-    <div className="card center"><h2>🎉 {U.finish}</h2></div>
-    {CONFIG.whatsapp && <a className="btn wa big" href={`https://wa.me/${CONFIG.whatsapp}`} target="_blank" rel="noopener noreferrer">💬 {T.ui.whatsapp}</a>}
-    <button className="btn" onClick={() => show("hub", "full")}>🏠 {H.topics}</button>
-  </>);
-
-  const sp = seq.indexOf(screen);
-  const pct = sp < 0 || seq.length < 2 ? null : Math.round((sp / Math.max(1, seq.length - 1)) * 100);
-  return (<>
-    <Header langName={T.name} onLang={() => setScreen("lang")} onMap={screen !== "hub" ? () => show("hub", "full") : null} pct={pct} />
-    <main className={screen === "hub" ? "hub-main" : ""}>{body}</main>
-  </>);
-}
-
-const Icon = ({ d }) => (
-  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{d}</svg>
-);
-const GLOBE = <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" /></>;
-const HOME = <><path d="M4 11l8-7 8 7" /><path d="M6 10v10h12V10" /><path d="M10 20v-6h4v6" /></>;
-
-function Header({ onLang, onMap, pct, langName }) {
+export default function Landing() {
+  const stats = SITE.stats.filter((s) => s.value);
   return (
-    <header>
-      <div className="hin">
-        <h1><img className="logo" src="/logo.svg" alt="" /><span className="htitle" dir="ltr"><span className="t-full">Bahrain Driving Licence</span><span className="t-short">Driving Licence</span></span></h1>
-        {onMap && <button className="hbtn" onClick={onMap} aria-label="Topics"><Icon d={HOME} /></button>}
-        {onLang && <button className="hbtn lang-btn" onClick={onLang} aria-label="Change language"><Icon d={GLOBE} /><span>{langName}</span></button>}
-        {pct != null && <div className="hbar"><i style={{ width: `${pct}%` }} /></div>}
-      </div>
-    </header>
-  );
-}
-
-function LangScreen({ onPick }) {
-  const flags = { en: "🇬🇧", ar: "🇧🇭", ur: "🇵🇰", hi: "🇮🇳", ml: "🌴", zh: "🇨🇳" };
-  return (<>
-    <div className="instructor">
-      <img src={CONFIG.instructorPhoto} alt={CONFIG.teacherName} />
-      <div>
-        <p className="ins-label">Driving Instructor</p>
-        <h2>{CONFIG.teacherName}</h2>
-        <p className="ins-code">Instructor Code <b>{CONFIG.instructorCode}</b></p>
-      </div>
-    </div>
-    <div className="lang-grid">
-      {Object.keys(I18N).map((k) => <button key={k} className="btn lang" onClick={() => onPick(k)}><span>{flags[k]}</span>{I18N[k].name}</button>)}
-    </div>
-  </>);
-}
-
-function JourneyMap({ T, U, show, maxPos }) {
-  const resume = FLOW[Math.min(maxPos, FLOW.length - 1)];
-  const Item = ({ s, icon, label }) => {
-    const p = FLOW.indexOf(s), done = maxPos > p, current = maxPos === p;
-    return <button className={`stop ${done ? "done" : ""} ${current ? "current" : ""}`} onClick={() => show(s)}>
-      <span className="dot">{done ? "✓" : icon}</span><span>{label}</span></button>;
-  };
-  return (<>
-    <h2>🗺️ {U.journey}</h2>
-    <button className="btn primary big" onClick={() => show(resume)}>▶ {U.continue}</button>
-    <div className="card">
-      <p className="kicker">{U.part1}</p>
-      <div className="path">
-        <Item s="welcome" icon="👋" label={T.welcome.title} />
-        {T.steps.map((s, i) => <Item key={i} s={`step${i}`} icon={i + 1} label={s.t} />)}
-        <Item s="govfees" icon="🏛️" label={HUB[Object.keys(I18N).find((k) => I18N[k] === T)].gov} />
-        <Item s="insfees" icon="🚗" label={HUB[Object.keys(I18N).find((k) => I18N[k] === T)].ins} />
-        <Item s="docs" icon="🪪" label={T.menu.docs} />
-        <Item s="register" icon="📝" label={REG_title(T)} />
-      </div>
-    </div>
-    <div className="card">
-      <p className="kicker">{U.part2}</p>
-      <div className="path">{T.lessons.map((l, i) => <Item key={i} s={`lesson${i}`} icon={i + 1} label={l.t} />)}</div>
-    </div>
-    <div className="card">
-      <p className="kicker">{U.part3}</p>
-      <div className="path"><Item s="quiz" icon="❓" label={T.menu.quiz} /></div>
-    </div>
-    {CONFIG.whatsapp && <a className="btn wa" href={`https://wa.me/${CONFIG.whatsapp}`} target="_blank" rel="noopener noreferrer">💬 {T.ui.whatsapp}</a>}
-    <p className="muted">{T.ui.disclaimer}</p>
-  </>);
-}
-const REG_title = (T) => REG[Object.keys(I18N).find((k) => I18N[k] === T)].menu;
-
-// Forward arrow; CSS mirrors it in right-to-left languages.
-const GoArrow = () => (
-  <svg className="go-arrow" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-    <path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-function Hub({ T, U, H, show, openCat, maxPos }) {
-  const cats = [
-    ["process", "📋", H.process, H.processSub],
-    ["gov", "🏛️", H.gov, H.govSub, F.eyeTest + F.learningBook + F.examAppointment + F.licenseCard],
-    ["ins", "🚗", H.ins, H.insSub, F.hours * F.perHour],
-    ["docs", "🪪", H.docs, H.docsSub],
-    ["lessons", "📘", H.lessons, H.lessonsSub],
-    ["quiz", "❓", H.quiz, H.quizSub],
-    ["register", "📝", H.register, H.registerSub],
-    ["map", "🗺️", H.map, H.mapSub],
-  ];
-  return (<>
-    <h2>{H.title}</h2>
-    <p className="muted" style={{ marginBottom: 12 }}>{H.sub}</p>
-    <button className="complete" onClick={() => show(maxPos > 0 ? FLOW[maxPos] : "welcome", "full")}>
-      <span className="c-ic">🧭</span>
-      <span><b>{maxPos > 0 ? H.resume : H.complete}</b><small>{H.completeSub}</small></span>
-      <span className="c-go"><GoArrow /></span>
-    </button>
-    <button className="allin" onClick={() => openCat("gov")}>
-      <span>💰 {H.allIn}</span><b>{allIn()} <small>{T.ui.bd}</small></b>
-    </button>
-    {maxPos > 0 && <button className="btn small-link" onClick={() => show("map", "full")}>🗺️ {U.journey}</button>}
-    <div className="cats">
-      {cats.map(([k, ic, t, sub, price], i) => (
-        <button key={k} className={`cat c${i}`} onClick={() => openCat(k)}>
-          <span className="cat-head"><span className="cat-ic">{ic}</span><span className="cat-n">{i + 1}</span></span>
-          <b className="cat-t">{t}</b>
-          <small className="cat-s">{sub}</small>
-          {price != null
-            ? <span className="cat-price">{price} <small>{T.ui.bd}</small></span>
-            : <span className="cat-go"><GoArrow /></span>}
-        </button>))}
-    </div>
-    {CONFIG.whatsapp && <a className="btn wa" href={`https://wa.me/${CONFIG.whatsapp}`} target="_blank" rel="noopener noreferrer">💬 {T.ui.whatsapp}</a>}
-    <p className="muted">{T.ui.disclaimer}</p>
-  </>);
-}
-
-function FeeList({ T, items }) {
-  const u = T.ui, total = items.reduce((s, x) => s + x[2], 0);
-  return (<div className="fees">
-    {items.map(([ic, label, v, sub]) => (
-      <div className="fee" key={label}>
-        <span className="fee-ic">{ic}</span>
-        <div className="fee-body">
-          <div className="fee-top"><span>{label}</span><b>{v} {u.bd}</b></div>
-          {sub && <div className="muted">{sub}</div>}
-          {items.length > 1 && <div className="fee-bar"><i style={{ width: `${(v / total) * 100}%` }} /></div>}
+    <div className="l-page">
+      {/* nav */}
+      <header className="l-nav">
+        <div className="l-in l-nav-in">
+          <a href="#top" className="l-brand">
+            <img src={CONFIG.instructorPhoto} alt="" />
+            <span><b>{CONFIG.teacherName}</b><small>Driving Instructor · Code {CONFIG.instructorCode}</small></span>
+          </a>
+          <nav className="l-links">
+            <a href="#about">About</a><a href="#pricing">Pricing</a><a href="#reviews">Reviews</a><a href="#faq">FAQ</a>
+          </nav>
+          <a href="#book" className="l-btn l-btn-dark l-nav-cta">Book</a>
         </div>
-      </div>))}
-  </div>);
-}
-const allIn = () => F.eyeTest + F.learningBook + F.examAppointment + F.hours * F.perHour + F.licenseCard;
+      </header>
 
-function GovFees({ T, U, H, mode, Nav }) {
-  const c = T.costs, u = T.ui;
-  const items = [["👁️", c.eye, F.eyeTest], ["📕", c.book, F.learningBook], ["📝", c.exam, F.examAppointment], ["🪪", c.card, F.licenseCard]];
-  const total = items.reduce((s, x) => s + x[2], 0);
-  return (<>
-    <p className="kicker">{mode === "full" ? U.part1 : H.topics}</p>
-    <div className="total-hero gov"><span>🏛️ {H.gov}</span><b>{total} <small>{u.bd}</small></b></div>
-    <FeeList T={T} items={items} />
-    <div className="card note">ℹ️ {H.govNote}</div>
-    <div className="allin static"><span>💰 {H.allIn}</span><b>{allIn()} <small>{u.bd}</small></b></div>
-    <Nav label={mode === "full" ? undefined : H.topics} />
-  </>);
-}
+      {/* hero */}
+      <section className="l-hero" id="top">
+        <div className="l-in l-hero-grid">
+          <div className="l-hero-left">
+            <div className="l-portrait"><img src={CONFIG.instructorPhoto} alt={CONFIG.teacherName} /></div>
+            <p className="l-eyebrow">Driving instructor in Bahrain</p>
+            <h1>{SITE.headline}</h1>
+            <p className="l-lead">{SITE.sub}</p>
+            <div className="l-hero-cta">
+              <a href="#pricing" className="l-btn l-btn-light">See pricing</a>
+              <Link href="/v1" className="l-btn l-btn-light">Free learning guide</Link>
+            </div>
+          </div>
+          <div className="l-hero-right"><ConsultForm /></div>
+        </div>
+      </section>
 
-function InsFees({ T, U, H, mode, Nav }) {
-  const c = T.costs, u = T.ui, cls = F.hours * F.perHour;
-  return (<>
-    <p className="kicker">{mode === "full" ? U.part1 : H.topics}</p>
-    <div className="total-hero"><span>🚗 {H.ins}</span><b>{cls} <small>{u.bd}</small></b></div>
-    <div className="hours">
-      <div><b>{F.hours}</b><small>{u.hours}</small></div><span>×</span>
-      <div><b>{F.perHour}</b><small>{u.bd} {u.perHour}</small></div><span>=</span>
-      <div className="eq"><b>{cls}</b><small>{u.bd}</small></div>
+      {/* about */}
+      <section className="l-sec" id="about">
+        <div className="l-in l-about">
+          <div>
+            <p className="l-eyebrow">About</p>
+            <h2>Experience you can trust on the road</h2>
+            {SITE.about.map((p) => <p key={p} className="l-p">{p}</p>)}
+          </div>
+          {stats.length > 0 && (
+            <div className="l-stats">
+              {stats.map((s) => <div key={s.label} className="l-stat"><b>{s.value}</b><span>{s.label}</span></div>)}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* how it works */}
+      <section className="l-sec l-alt">
+        <div className="l-in">
+          <p className="l-eyebrow">How it works</p>
+          <h2>From first call to licence card</h2>
+          <ol className="l-steps">
+            {STEPS.map(([t, d], i) => <li key={t}><span className="l-step-n">{i + 1}</span><h3>{t}</h3><p>{d}</p></li>)}
+          </ol>
+        </div>
+      </section>
+
+      {/* pricing */}
+      <section className="l-sec" id="pricing">
+        <div className="l-in">
+          <p className="l-eyebrow">Pricing</p>
+          <h2>Clear fees, no surprises</h2>
+          <div className="l-prices">
+            <div className="l-price">
+              <h3>Government fees</h3>
+              <p className="l-amount">{gov} <small>BD</small></p>
+              <p className="l-muted">Paid to the General Directorate of Traffic</p>
+              <ul>
+                <li><span>Eye test</span><b>{F.eyeTest} BD</b></li>
+                <li><span>Learning book</span><b>{F.learningBook} BD</b></li>
+                <li><span>Exam appointment</span><b>{F.examAppointment} BD</b></li>
+                <li><span>Licence card (after passing)</span><b>{F.licenseCard} BD</b></li>
+              </ul>
+            </div>
+            <div className="l-price l-featured">
+              <span className="l-tag">Complete package</span>
+              <h3>Everything included</h3>
+              <p className="l-amount">{total} <small>BD</small></p>
+              <p className="l-muted">From eye test to licence card</p>
+              <ul>
+                <li><span>Government fees</span><b>{gov} BD</b></li>
+                <li><span>{F.hours} hours of classes</span><b>{classes} BD</b></li>
+                <li><span>Free interactive learning guide</span><b>✓</b></li>
+                <li><span>Pay at once or per class</span><b>✓</b></li>
+              </ul>
+              <a href="#book" className="l-btn l-btn-white l-full">Book consultation</a>
+            </div>
+            <div className="l-price">
+              <h3>Driving classes</h3>
+              <p className="l-amount">{classes} <small>BD</small></p>
+              <p className="l-muted">Paid to your instructor</p>
+              <ul>
+                <li><span>Hours of practical training</span><b>{F.hours}</b></li>
+                <li><span>Price per hour</span><b>{F.perHour} BD</b></li>
+                <li><span>Automatic or manual</span><b>✓</b></li>
+                <li><span>Pay per class</span><b>✓</b></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* reviews */}
+      <section className="l-sec l-alt" id="reviews">
+        <div className="l-in">
+          <p className="l-eyebrow">Success stories</p>
+          <h2>Students who got their licence</h2>
+          <div className="l-reviews">
+            {SITE.reviews.length > 0 ? SITE.reviews.map((r) => (
+              <figure key={r.name} className="l-review">
+                <div className="l-review-imgs"><img src={r.selfie} alt={`${r.name}`} /><img src={r.licence} alt={`${r.name}'s driving licence`} /></div>
+                <blockquote>“{r.text}”</blockquote>
+                <figcaption>{r.name}</figcaption>
+              </figure>
+            )) : [0, 1, 2].map((k) => (
+              <figure key={k} className="l-review l-review-empty">
+                <div className="l-review-imgs"><div className="l-ph">Student photo</div><div className="l-ph">Licence card</div></div>
+                <blockquote>Success stories from our students will appear here.</blockquote>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* what you'll learn */}
+      <section className="l-sec">
+        <div className="l-in">
+          <p className="l-eyebrow">What you will learn</p>
+          <h2>Ready for the road and the test</h2>
+          <div className="l-grid3">
+            {LEARN.map(([t, d]) => <div key={t} className="l-card"><h3>{t}</h3><p>{d}</p></div>)}
+          </div>
+          <div className="l-guide">
+            <div><h3>Try the free interactive guide</h3><p>Fees, the full process and game-style lessons in English, Arabic, Urdu, Hindi, Malayalam and Chinese.</p></div>
+            <Link href="/v1" className="l-btn l-btn-white">Open guide</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* why */}
+      <section className="l-sec l-alt">
+        <div className="l-in">
+          <p className="l-eyebrow">Why train with us</p>
+          <h2>Simple, honest and flexible</h2>
+          <div className="l-grid3">
+            {WHY.map(([t, d]) => <div key={t} className="l-card"><h3>✓ {t}</h3><p>{d}</p></div>)}
+          </div>
+        </div>
+      </section>
+
+      {/* faq */}
+      <section className="l-sec" id="faq">
+        <div className="l-in l-narrow">
+          <p className="l-eyebrow">FAQ</p>
+          <h2>Common questions</h2>
+          {SITE.faq.map((x) => <details key={x.q} className="l-faq"><summary>{x.q}</summary><p>{x.a}</p></details>)}
+        </div>
+      </section>
+
+      {/* contact */}
+      <section className="l-cta">
+        <div className="l-in l-cta-in">
+          <div><h2>Ready to start driving?</h2><p>Book a free consultation or message us directly.</p></div>
+          <div className="l-cta-btns">
+            <a href="#book" className="l-btn l-btn-white">Book consultation</a>
+            {wa && <a href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer" className="l-btn l-btn-outline">WhatsApp</a>}
+            {tel && <a href={`tel:+${tel}`} className="l-btn l-btn-outline">Call</a>}
+          </div>
+        </div>
+      </section>
+
+      <footer className="l-foot">
+        <div className="l-in l-foot-in">
+          <span>© {CONFIG.teacherName} · Driving Instructor Code {CONFIG.instructorCode}</span>
+          <span>Fees are set by the authorities and may change.</span>
+        </div>
+      </footer>
     </div>
-    <div className="card">🚘 {c.classes}: {H.insNote}</div>
-    <div className="card note">💳 {u.payNote}</div>
-    <div className="allin static"><span>💰 {H.allIn}</span><b>{allIn()} <small>{u.bd}</small></b></div>
-    <Nav label={mode === "full" ? undefined : H.topics} />
-  </>);
-}
-
-const DOC_ICONS = ["🪪", "📄", "💳", "👓", "🚗"];
-
-function Docs(props) {
-  return props.mode === "full" ? <DocsChecklist {...props} /> : <DocsInfo {...props} />;
-}
-
-// Read-only list, used when Documents is opened from the topic menu.
-function DocsInfo({ T, H, Nav }) {
-  return (<>
-    <p className="kicker">{H.topics}</p>
-    <Art name="docs" />
-    <h2>🪪 {T.menu.docs}</h2>
-    <div className="doc-list">
-      {T.docs.map((d, i) => (
-        <div key={i} className="doc-item">
-          <span className="doc-ic">{DOC_ICONS[i] || "📌"}</span>
-          <span>{d}</span>
-        </div>))}
-    </div>
-    <Nav label={H.topics} />
-  </>);
-}
-
-function DocsChecklist({ T, U, Nav }) {
-  const [have, setHave] = useState(() => store.get("docs", []));
-  const toggle = (i) => { const h = have.includes(i) ? have.filter((x) => x !== i) : [...have, i]; setHave(h); store.set("docs", h); };
-  return (<>
-    <p className="kicker">{U.part1}</p>
-    <Art name="docs" />
-    <h2>🪪 {T.menu.docs}</h2>
-    <p className="muted">{U.checkAll}</p>
-    {T.docs.map((d, i) => (
-      <button key={i} className={`btn check ${have.includes(i) ? "on" : ""}`} onClick={() => toggle(i)}>
-        <span className="box">{have.includes(i) ? "✓" : ""}</span>{d}</button>))}
-    <Nav />
-  </>);
-}
-
-function RegisterStep({ R, U, lang, next, prev }) {
-  const [done, setDone] = useState(() => store.get("registered", false));
-  if (done) return (<>
-    <div className="card center"><div style={{ fontSize: 48 }}>✅</div><p className="lead">{R.success}</p></div>
-    <button className="btn primary big" onClick={next}>{U.continue} →</button>
-  </>);
-  return (<>
-    <p className="kicker">{U.regAsk}</p>
-    <Register R={R} lang={lang} onDone={() => { store.set("registered", true); setDone(true); window.scrollTo(0, 0); }}
-      footer={<div className="nav"><button type="button" className="btn" onClick={prev}>←</button><button type="button" className="btn" onClick={next}>{U.skip} →</button></div>} />
-  </>);
-}
-
-function Lesson({ T, U, i, next, Nav }) {
-  const l = T.lessons[i];
-  const [active, setActive] = useState(null);
-  const [seen, setSeen] = useState([]);
-  const tap = (b) => { setActive(b); setSeen((s) => (s.includes(b) ? s : [...s, b])); };
-  const all = seen.length >= l.p.length;
-  const onNext = () => {
-    if (all) return next();
-    const n = l.p.findIndex((_, k) => !seen.includes(k));
-    tap(n);
-  };
-  return (<>
-    <p className="kicker">{U.part2} · {i + 1}/{T.lessons.length}</p>
-    <h2><span className="num">{i + 1}</span>{l.t}</h2>
-    {i === 2 ? <Roundabout U={U} onTap={tap} /> : <LessonScene index={i} active={active} seen={seen} onTap={tap} />}
-    {active === null
-      ? <div className="card hint">{U.tapHint}</div>
-      : <div className="card rule" key={active}><span className="num">{active + 1}</span><p className="lead">{l.p[active]}</p></div>}
-    <div className="dots">{l.p.map((_, k) => <i key={k} className={seen.includes(k) ? "on" : ""} onClick={() => tap(k)} />)}</div>
-    {all && <div className="card ok">🎉 {U.seenAll}</div>}
-    {all && (MEDIA[i] || []).map((m) => m.startsWith("img:")
-      ? <img key={m} className="media" src={m.slice(4)} alt="" loading="lazy" />
-      : <video key={m} className="media" src={m.slice(4)} controls playsInline preload="metadata" />)}
-    <Nav onNext={onNext} label={all ? T.ui.next : `${T.ui.next} (${seen.length}/${l.p.length})`} />
-  </>);
-}
-
-function Quiz({ T, U, next }) {
-  const [i, setI] = useState(0);
-  const [score, setScore] = useState(0);
-  const [picked, setPicked] = useState(null);
-  if (i >= T.quiz.length) return (<>
-    <div className="card center">
-      <h2>{T.ui.score}</h2>
-      <div className="score">{score} / {T.quiz.length}</div>
-      <p>{"⭐".repeat(Math.round((score / T.quiz.length) * 5))}</p>
-    </div>
-    <button className="btn primary big" onClick={next}>{U.continue} →</button>
-    <button className="btn" onClick={() => { setI(0); setScore(0); setPicked(null); }}>🔄 {T.ui.retry}</button>
-  </>);
-  const q = T.quiz[i];
-  return (<>
-    <p className="kicker">{U.part3} · {i + 1}/{T.quiz.length}</p>
-    <div className="card"><h3>❓ {q.q}</h3></div>
-    {q.o.map((o, j) => {
-      const cls = picked === null ? "" : j === q.a ? "ok" : j === picked ? "bad" : "";
-      return <button key={j} className={`btn opt ${cls}`} disabled={picked !== null}
-        onClick={() => { setPicked(j); if (j === q.a) setScore(score + 1); }}>{o}</button>;
-    })}
-    {picked !== null && (<>
-      <div className="card"><p>{picked === q.a ? `✅ ${T.ui.correct}` : `❌ ${T.ui.wrong} ${q.o[q.a]}`}</p></div>
-      <button className="btn primary big" onClick={() => { setI(i + 1); setPicked(null); }}>{T.ui.next} →</button>
-    </>)}
-  </>);
+  );
 }
