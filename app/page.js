@@ -121,17 +121,23 @@ export default function Home() {
   const sp = seq.indexOf(screen);
   const pct = sp < 0 || seq.length < 2 ? null : Math.round((sp / Math.max(1, seq.length - 1)) * 100);
   return (<>
-    <Header onLang={() => setScreen("lang")} onMap={screen !== "hub" ? () => show("hub", "full") : null} pct={pct} />
+    <Header langName={T.name} onLang={() => setScreen("lang")} onMap={screen !== "hub" ? () => show("hub", "full") : null} pct={pct} />
     <main className={screen === "hub" ? "hub-main" : ""}>{body}</main>
   </>);
 }
 
-function Header({ onLang, onMap, pct }) {
+const Icon = ({ d }) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{d}</svg>
+);
+const GLOBE = <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" /></>;
+const HOME = <><path d="M4 11l8-7 8 7" /><path d="M6 10v10h12V10" /><path d="M10 20v-6h4v6" /></>;
+
+function Header({ onLang, onMap, pct, langName }) {
   return (
     <header>
-      <h1><img className="logo" src="/logo.svg" alt="" />Bahrain Driving Licence</h1>
-      {onMap && <button onClick={onMap} aria-label="Topics">🏠</button>}
-      {onLang && <button onClick={onLang} aria-label="Language">🌐</button>}
+      <h1><img className="logo" src="/logo.svg" alt="" /><span className="htitle" dir="ltr"><span className="t-full">Bahrain Driving Licence</span><span className="t-short">Driving Licence</span></span></h1>
+      {onMap && <button className="hbtn" onClick={onMap} aria-label="Topics"><Icon d={HOME} /></button>}
+      {onLang && <button className="hbtn lang-btn" onClick={onLang} aria-label="Change language"><Icon d={GLOBE} /><span>{langName}</span></button>}
       {pct != null && <div className="hbar"><i style={{ width: `${pct}%` }} /></div>}
     </header>
   );
