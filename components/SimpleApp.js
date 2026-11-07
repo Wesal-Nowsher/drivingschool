@@ -6,10 +6,8 @@ import { I18N } from "@/lib/i18n";
 import { HUB } from "@/lib/hub-i18n";
 import { UI } from "@/lib/ui-i18n";
 import { CONFIG } from "@/lib/config";
-import { PlainScene } from "@/components/Scenes";
+import LessonGame from "@/components/LessonGame";
 
-// Real images from the instructor for lessons without a drawing.
-const LESSON_IMG = { 2: "/assets/roundabout-route.jpg", 7: "/assets/school-map.jpg" };
 
 const F = CONFIG.fees;
 const get = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
@@ -130,15 +128,14 @@ export default function SimpleApp() {
     </>);
   } else if (view.name === "lesson") {
     const i = view.i, l = T.lessons[i], n = T.lessons.length;
+    const prev = () => (i > 0 ? go("lesson", i - 1) : go("done"));
+    const nextL = () => (i < n - 1 ? go("lesson", i + 1) : go("finish"));
+    const LNav = ({ onNext, nextLabel }) => <Nav onBack={prev} onNext={onNext} nextLabel={nextLabel} />;
     body = (<>
       <p className="s-kicker">{H.lesson} {i + 1} {U.of} {n}</p>
       <div className="s-progress"><i style={{ width: `${((i + 1) / n) * 100}%` }} /></div>
       <h1 className="s-h1">{l.t}</h1>
-      {LESSON_IMG[i] ? <img className="s-illus s-photo-illus" src={LESSON_IMG[i]} alt="" /> : <PlainScene index={i} />}
-      <ol className="s-rules">{l.p.map((p, k) => <li key={k}>{p}</li>)}</ol>
-      <Nav onBack={() => (i > 0 ? go("lesson", i - 1) : go("done"))}
-           onNext={() => (i < n - 1 ? go("lesson", i + 1) : go("finish"))}
-           nextLabel={i < n - 1 ? u.next : u.done} />
+      <LessonGame key={`${lang}-${i}`} lang={lang} T={T} U={U} i={i} Nav={LNav} onNext={nextL} nextLabel={i < n - 1 ? u.next : u.done} />
     </>);
   } else {
     body = (<>
