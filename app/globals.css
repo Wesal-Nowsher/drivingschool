@@ -1,6 +1,9 @@
 :root{--red:#ce1126;--ink:#1b1f24;--muted:#5d6670;--bg:#f5f6f8;--card:#fff;--line:#e3e6ea;--ok:#1a8f4a;--bad:#c62828}
 @media (prefers-color-scheme:dark){:root{--ink:#eef1f4;--muted:#a3acb6;--bg:#121417;--card:#1d2126;--line:#2e343b}}
 *{box-sizing:border-box}
+html,body{overflow-x:hidden;max-width:100%}
+input,select,textarea,button{max-width:100%;min-width:0}
+main{overflow-wrap:anywhere}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI","Noto Sans","Noto Sans Arabic","Noto Nastaliq Urdu","Noto Sans Malayalam","Noto Sans Devanagari",sans-serif}
 header{background:var(--red);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5;flex-wrap:wrap}
 header h1{font-size:17px;margin:0;flex:1}
@@ -33,7 +36,7 @@ input,select,textarea{width:100%;padding:12px;border-radius:10px;border:1px soli
 .chips{display:flex;gap:8px;flex-wrap:wrap}
 .chip{padding:8px 14px;border-radius:20px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;cursor:pointer}
 .chip.on{background:var(--red);border-color:var(--red);color:#fff}
-.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.hp{position:absolute;width:1px;height:1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;opacity:0}
 .badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:13px;font-weight:600;background:var(--line)}
 .badge.new{background:#fde2e4;color:#a1121f}.badge.contacted{background:#fff3cd;color:#7a5a00}.badge.enrolled{background:#d9f2e3;color:#14663a}.badge.completed{background:#dbe7ff;color:#1d4ab3}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:12px}
