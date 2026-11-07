@@ -130,10 +130,6 @@ function LangScreen({ onPick }) {
         <p className="ins-code">Instructor Code <b>{CONFIG.instructorCode}</b></p>
       </div>
     </div>
-    <div className="center lang-title">
-      <h2>🌐 Choose your language</h2>
-      <p className="muted">اختر لغتك · اپنی زبان منتخب کریں · अपनी भाषा चुनें · ഭാഷ തിരഞ്ഞെടുക്കുക · 选择语言</p>
-    </div>
     <div className="lang-grid">
       {Object.keys(I18N).map((k) => <button key={k} className="btn lang" onClick={() => onPick(k)}><span>{flags[k]}</span>{I18N[k].name}</button>)}
     </div>
