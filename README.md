@@ -1,10 +1,10 @@
 # Driving Instructor Website (Next.js)
 
-- `/` is the landing page for the instructor: hero with photo and consultation form, about, how it works, pricing, success stories, what you learn, why us, FAQ and contact. Content lives in `lib/site.js`.
-- `/v1` is the interactive multilingual student guide (below).
+- `/yousef-ismail-m-basal` is the instructor's landing page (also reachable as `/yousef` and `/Yousef Ismail M. Basal`): hero with photo and consultation form, about, how it works, pricing, success stories, what you learn, why us, FAQ and contact. Content lives in `lib/site.js`.
+- `/` is the interactive multilingual student guide (below). The old `/v1` address redirects here.
 - `/admin` is the instructor dashboard. Consultation requests from the landing page are tagged "consultation".
 
-## Student guide (/v1)
+## Student guide (/)
 
 Instructors share one link with their students. Each student picks a language (English, العربية, اردو, हिन्दी, മലയാളം, 中文) and the app takes them through:
 
