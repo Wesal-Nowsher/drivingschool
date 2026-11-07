@@ -290,7 +290,30 @@ function InsFees({ T, U, H, mode, Nav }) {
   </>);
 }
 
-function Docs({ T, U, Nav }) {
+const DOC_ICONS = ["🪪", "📄", "💳", "👓", "🚗"];
+
+function Docs(props) {
+  return props.mode === "full" ? <DocsChecklist {...props} /> : <DocsInfo {...props} />;
+}
+
+// Read-only list, used when Documents is opened from the topic menu.
+function DocsInfo({ T, H, Nav }) {
+  return (<>
+    <p className="kicker">{H.topics}</p>
+    <Art name="docs" />
+    <h2>🪪 {T.menu.docs}</h2>
+    <div className="doc-list">
+      {T.docs.map((d, i) => (
+        <div key={i} className="doc-item">
+          <span className="doc-ic">{DOC_ICONS[i] || "📌"}</span>
+          <span>{d}</span>
+        </div>))}
+    </div>
+    <Nav label={H.topics} />
+  </>);
+}
+
+function DocsChecklist({ T, U, Nav }) {
   const [have, setHave] = useState(() => store.get("docs", []));
   const toggle = (i) => { const h = have.includes(i) ? have.filter((x) => x !== i) : [...have, i]; setHave(h); store.set("docs", h); };
   return (<>
