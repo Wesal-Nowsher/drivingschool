@@ -33,7 +33,13 @@ const CATS = {
   quiz: ["quiz"], register: ["register"], map: ["schoolmap"],
 };
 
-export default function Home() {
+import SimpleApp from "@/components/SimpleApp";
+
+export default function Page() {
+  return CONFIG.simpleMode ? <SimpleApp /> : <Home />;
+}
+
+function Home() {
   const [lang, setLangState] = useState(null);
   const [screen, setScreen] = useState("lang"); // "lang" | "hub" | "map" | FLOW item
   const [mode, setMode] = useState("full"); // "full" or a CATS key
