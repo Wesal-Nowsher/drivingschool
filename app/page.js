@@ -129,7 +129,7 @@ export default function Home() {
 function Header({ onLang, onMap, pct }) {
   return (
     <header>
-      <h1>🚗 Bahrain Driving Licence</h1>
+      <h1><img className="logo" src="/logo.svg" alt="" />Bahrain Driving Licence</h1>
       {onMap && <button onClick={onMap} aria-label="Topics">🏠</button>}
       {onLang && <button onClick={onLang} aria-label="Language">🌐</button>}
       {pct != null && <div className="hbar"><i style={{ width: `${pct}%` }} /></div>}

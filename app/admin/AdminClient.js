@@ -41,7 +41,7 @@ export default function AdminClient({ initial }) {
 
   return (<>
     <header>
-      <h1>🚗 Instructor dashboard</h1>
+      <h1><img className="logo" src="/logo.svg" alt="" />Instructor dashboard</h1>
       <form method="post" action="/api/admin/logout"><button>Log out</button></form>
     </header>
     <main className="wide">

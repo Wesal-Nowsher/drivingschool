@@ -114,3 +114,5 @@ h2 .num{vertical-align:middle}
 .hours div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px;text-align:center;min-width:76px}
 .hours b{display:block;font-size:28px;line-height:1.1}.hours small{color:var(--muted);font-size:12px}.hours span{font-size:22px;font-weight:800;color:var(--muted)}
 .hours .eq{background:var(--red);border-color:var(--red);color:#fff}.hours .eq small{color:#fff}
+header h1{display:flex;align-items:center;gap:10px}
+header .logo{width:30px;height:30px;margin:0;border-radius:8px;background:none;box-shadow:0 0 0 2px rgba(255,255,255,.85);flex:none}
