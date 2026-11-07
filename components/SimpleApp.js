@@ -173,7 +173,7 @@ function BottomBar({ label, sub, fwd, onLearn, waLabel }) {
     <div className="s-bar">
       <div className="s-bar-in">
         <button className="s-bar-learn" onClick={onLearn}>
-          <span className="s-bar-text"><b>{label}</b></span>
+          <span className="s-bar-text"><b>{label}</b><small>{sub}</small></span>
           <span aria-hidden="true">{fwd}</span>
         </button>
         <a className={`s-bar-ic ${wa ? "" : "off"}`} href={wa ? `https://wa.me/${wa}` : undefined} target="_blank" rel="noopener noreferrer" aria-label={waLabel} title="WhatsApp">
