@@ -1,16 +1,37 @@
-# Bahrain Driving Licence Guide
+# Bahrain Driving Licence Guide (Next.js)
 
-A mobile-friendly web app that a driving instructor can share by WhatsApp link. Students pick their language first: English, العربية, اردو, हिन्दी, മലയാളം or فارسی. The app then guides them through:
+Instructors share one link with their students. Each student picks a language (English, العربية, اردو, हिन्दी, മലയാളം, فارسی) and the app takes them through:
 
-- The step-by-step licence process (Mawaeed booking, eye test, learner licence, classes, exam, licence card)
-- The full cost breakdown (217 BD by default)
-- The documents they need
-- 8 driving lessons to read before practical training, with progress saved on the student's phone (roundabouts, signs, lights, reversing, exam tips)
+- **Register with your instructor:** name, WhatsApp number, nationality, area, car type, preferred time, whether they have a learner licence, notes
+- The step-by-step licence process, the full cost breakdown (217 BD) and the documents needed
+- 8 driving lessons to read before practical classes (progress is saved on the student's phone), with the school map, roundabout diagram and practice videos
 - An 8-question practice quiz
-- The school training-ground map, a roundabout route diagram and practice videos
 
-## Teacher settings
-Edit `config.js` to change the instructor name, the WhatsApp number (digits only, e.g. `97333123456`) and the fees. The totals update automatically.
+## Instructor dashboard: `/admin`
+Log in with `ADMIN_PASSWORD`. The dashboard shows every registration and lets the instructor:
+- open WhatsApp with a ready-made greeting (this marks the student as *contacted*) or call them
+- set a status: new → contacted → enrolled → completed / cancelled
+- add private notes (payments, class times)
+- search, filter, export to CSV, or delete a registration
 
-## Publish (free)
-Enable **GitHub Pages** (Settings → Pages → Deploy from branch) and share the link, e.g. `https://<user>.github.io/drivingschool/`.
+## Run locally
+```bash
+npm install
+cp .env.example .env.local   # then set ADMIN_PASSWORD
+npm run dev
+```
+Open http://localhost:3000 for students and http://localhost:3000/admin for the instructor.
+
+## Deploy (free) on Vercel
+1. Import this GitHub repo at vercel.com.
+2. Add a free Postgres database (Vercel → Storage → Neon, or neon.tech / supabase.com) and set `DATABASE_URL`. The table is created automatically.
+3. Set `ADMIN_PASSWORD` and `NEXT_PUBLIC_TEACHER_WHATSAPP`.
+4. Share the deployed URL with students.
+
+Without `DATABASE_URL`, registrations are saved to `data/registrations.json`. That works for local use or a VPS, but **not** on Vercel, where the disk is not persistent.
+
+## Editing content
+- Fees and WhatsApp number: `lib/config.js`
+- Guide texts in all languages: `lib/i18n.js`
+- Registration form texts: `lib/reg-i18n.js`
+- Images and videos: `public/assets/`
