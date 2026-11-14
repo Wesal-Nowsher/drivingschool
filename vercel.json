@@ -1,10 +1,31 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "",
+  "buildCommand": "",
+  "outputDirectory": ".",
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/v1", "destination": "/", "permanent": false },
-    { "source": "/yousef", "destination": "/yousef-ismail-m-basal", "permanent": true },
-    { "source": "/Yousef Ismail M. Basal", "destination": "/yousef-ismail-m-basal", "permanent": true },
-    { "source": "/Yousef%20Ismail%20M.%20Basal", "destination": "/yousef-ismail-m-basal", "permanent": true }
+    {
+      "source": "/v1",
+      "destination": "/",
+      "permanent": false
+    },
+    {
+      "source": "/yousef",
+      "destination": "/yousef-ismail-m-basal",
+      "permanent": true
+    },
+    {
+      "source": "/Yousef Ismail M. Basal",
+      "destination": "/yousef-ismail-m-basal",
+      "permanent": true
+    },
+    {
+      "source": "/Yousef%20Ismail%20M.%20Basal",
+      "destination": "/yousef-ismail-m-basal",
+      "permanent": true
+    }
   ]
 }
