@@ -570,3 +570,6 @@ body:has(.l-page){background:#fff}
 [dir=rtl] .l-fab{right:auto;left:22px}[dir=rtl] .l-fab-tip{right:auto;left:72px}
 @media (max-width:760px){.l-fab{bottom:86px;right:16px;width:56px;height:56px}.l-fab-tip{display:none}}
 @media (prefers-reduced-motion:reduce){.l-fab::before{animation:none}}
+.l-fab,.l-fab::before{background:#111}
+.l-fab::before{opacity:.35}
+.l-fab:hover{background:#333}
