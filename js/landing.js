@@ -38,7 +38,7 @@ form.addEventListener("submit", async (e) => {
     form.hidden = true;
     document.getElementById("book-done").hidden = false;
   } catch {
-    btn.disabled = false; btn.textContent = "Get a free call back";
+    btn.disabled = false; btn.textContent = "Book consultation";
     showErr(CONFIG.formEndpoint || CONFIG.whatsapp ? "Something went wrong. Please try again." : "Online booking is not set up yet. Please call or message your instructor directly.");
   }
 });
