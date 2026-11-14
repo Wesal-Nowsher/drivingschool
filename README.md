@@ -4,11 +4,11 @@ No framework and no build step. Any static host (Vercel, Netlify, GitHub Pages) 
 
 | Address | File | What it is |
 |---|---|---|
-| `/` | `index.html` + `js/guide.js` | Student guide: language, payment details, process guide, game-style driving lessons (6 languages) |
-| `/yousef-ismail-m-basal` | `yousef-ismail-m-basal/index.html` + `js/landing.js` | Instructor landing page for Google Ads: hero with consultation form, pricing in 4 payments, reviews, FAQ |
+| `/guide` | `guide/index.html` + `js/guide.js` | Student guide: language, payment details, process guide, game-style driving lessons (6 languages) |
+| `/` | `index.html` + `js/landing.js` | Instructor landing page for Google Ads: hero with consultation form, pricing in 4 payments, reviews, FAQ |
 | `/privacy` | `privacy/index.html` | Privacy policy (required for Google Ads lead forms) |
 
-`/yousef`, `/Yousef Ismail M. Basal` and `/v1` redirect via `vercel.json`.
+`/yousef`, `/yousef-ismail-m-basal` redirect to `/`, and `/v1` to `/guide` (see `vercel.json`).
 
 ## Settings: `js/config.js`
 - `whatsapp`, `phone`: the instructor's numbers (digits with country code). WhatsApp and call buttons appear once set.
@@ -19,11 +19,11 @@ No framework and no build step. Any static host (Vercel, Netlify, GitHub Pages) 
 ## Content
 - Guide texts: `js/data/i18n.js`, `hub-i18n.js`, `ui-i18n.js`, `game-i18n.js`
 - Lesson pictures and animations: `js/data/scenes.js`
-- Landing page text: edit `yousef-ismail-m-basal/index.html` directly
+- Landing page text: edit `index.html` directly
 - Success stories: add photos to `/reviews/` and list them in `js/data/reviews.js` (only real students who agreed). While empty, clearly marked sample reviews are shown.
 
 ## Run locally
 ```bash
 python3 -m http.server 8000
 ```
-Then open http://localhost:8000 and http://localhost:8000/yousef-ismail-m-basal/
+Then open http://localhost:8000 and http://localhost:8000/guide/

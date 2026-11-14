@@ -9,17 +9,22 @@
   "redirects": [
     {
       "source": "/v1",
-      "destination": "/",
+      "destination": "/guide",
       "permanent": false
     },
     {
       "source": "/yousef",
-      "destination": "/yousef-ismail-m-basal",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/yousef-ismail-m-basal",
+      "destination": "/",
       "permanent": true
     },
     {
       "source": "/Yousef%20Ismail%20M.%20Basal",
-      "destination": "/yousef-ismail-m-basal",
+      "destination": "/",
       "permanent": true
     }
   ]
