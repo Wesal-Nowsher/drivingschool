@@ -517,3 +517,14 @@ body:has(.l-page){background:#fff}
 .l-page .l-form .l-form-h{font-size:22px;line-height:1.3;margin:0 0 4px;letter-spacing:0}
 .l-short{display:none}
 @media (max-width:760px){.l-long{display:none}.l-short{display:inline}}
+/* plain price table */
+.l-ptable{width:100%;border-collapse:collapse;margin:20px 0 12px;background:#fff;border:1px solid #e5e5e5;border-radius:14px;overflow:hidden}
+.l-ptable th{text-align:start;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:#666;padding:12px 16px;border-bottom:1px solid #e5e5e5;background:#fafafa}
+.l-ptable th:last-child,.l-ptable td:last-child{text-align:end;white-space:nowrap}
+.l-ptable td{padding:14px 16px;border-bottom:1px solid #eee;vertical-align:top;font-size:16px}
+.l-ptable td:last-child{font-weight:700;font-size:17px}
+.l-ptable td b{display:block;font-weight:600}
+.l-ptable td small{display:block;color:#666;font-size:14px;margin-top:2px}
+.l-ptable-ins td{background:#f5f5f5}
+.l-ptable tfoot td{background:#111;color:#fff;font-weight:700;font-size:18px;border:0}
+.l-ptable tfoot td:last-child{font-size:22px}
