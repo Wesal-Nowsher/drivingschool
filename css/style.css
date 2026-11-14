@@ -488,3 +488,32 @@ body:has(.l-page){background:#fff}
 .l-pay-total span{font-size:18px;font-weight:600}.l-pay-total b{font-size:34px}
 .l-pay-foot{margin-bottom:20px}
 @media (max-width:480px){.l-pay-sum{font-size:22px}.l-pay-step{padding:16px 14px 12px}}
+
+/* ===== landing additions (static site) ===== */
+.l-hl{background:#111;color:#fff;padding:0 .25em;border-radius:8px;white-space:nowrap}
+.l-pricestrip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:22px 0 4px;max-width:480px}
+.l-pricestrip div{border:1.5px solid #111;border-radius:12px;padding:10px 12px;text-align:center;background:#fff}
+.l-pricestrip b{display:block;font-size:22px;line-height:1.2}.l-pricestrip span{font-size:13px;color:#555}
+.l-pricestrip div:last-child{background:#111;color:#fff}.l-pricestrip div:last-child span{color:#ccc}
+.l-facts{list-style:none;padding:0;margin:16px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:15px;color:#333}
+@media (max-width:540px){.l-facts{grid-template-columns:1fr}}
+.l-btn-wa{background:#25d366;color:#fff}.l-btn-wa:hover{background:#1ebe5b}
+.l-form-h{font-size:22px;margin:0 0 4px}
+.l-form-small{font-size:12px;color:#888;margin:10px 0 0;text-align:center}.l-form-small a{color:#555}
+.l-trust{background:#111;color:#fff;font-size:14px}
+.l-trust-in{display:flex;flex-wrap:wrap;gap:8px 28px;justify-content:center;padding:14px 20px}
+.l-foot a{color:#bbb}
+.l-sticky{display:none}
+@media (max-width:760px){
+  .l-nav-cta{padding:8px 12px;font-size:13px}
+  .l-sticky{display:flex;gap:8px;position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fff;border-top:1px solid #e5e5e5;padding:10px 12px calc(10px + env(safe-area-inset-bottom));transition:transform .25s}
+  .l-sticky.away{transform:translateY(110%)}
+  .l-sticky .l-btn{flex:1}
+  .l-sticky-ic{flex:none;display:flex;align-items:center;justify-content:center;padding:0 14px;border-radius:10px;border:1.5px solid #111;color:#111;font-weight:700;font-size:14px;text-decoration:none}
+  .l-sticky-ic[hidden]{display:none}
+  .l-page{padding-bottom:72px}
+}
+.l-btn[hidden]{display:none}
+.l-page .l-form .l-form-h{font-size:22px;line-height:1.3;margin:0 0 4px;letter-spacing:0}
+.l-short{display:none}
+@media (max-width:760px){.l-long{display:none}.l-short{display:inline}}

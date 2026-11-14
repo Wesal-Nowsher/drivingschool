@@ -1,43 +1,29 @@
-# Driving Instructor Website (Next.js)
+# Driving Instructor Website (plain HTML, CSS, JS)
 
-- `/yousef-ismail-m-basal` is the instructor's landing page (also reachable as `/yousef` and `/Yousef Ismail M. Basal`): hero with photo and consultation form, about, how it works, pricing, success stories, what you learn, why us, FAQ and contact. Content lives in `lib/site.js`.
-- `/` is the interactive multilingual student guide (below). The old `/v1` address redirects here.
-- `/admin` is the instructor dashboard. Consultation requests from the landing page are tagged "consultation".
+No framework and no build step. Any static host (Vercel, Netlify, GitHub Pages) can serve the folder as it is.
 
-## Student guide (/)
+| Address | File | What it is |
+|---|---|---|
+| `/` | `index.html` + `js/guide.js` | Student guide: language, payment details, process guide, game-style driving lessons (6 languages) |
+| `/yousef-ismail-m-basal` | `yousef-ismail-m-basal/index.html` + `js/landing.js` | Instructor landing page for Google Ads: hero with consultation form, pricing in 4 payments, reviews, FAQ |
+| `/privacy` | `privacy/index.html` | Privacy policy (required for Google Ads lead forms) |
 
-Instructors share one link with their students. Each student picks a language (English, العربية, اردو, हिन्दी, മലയാളം, 中文) and the app takes them through:
+`/yousef`, `/Yousef Ismail M. Basal` and `/v1` redirect via `vercel.json`.
 
-- **Register with your instructor:** name, WhatsApp number, nationality, area, car type, preferred time, whether they have a learner licence, notes
-- The step-by-step licence process, the full cost breakdown (217 BD) and the documents needed
-- 8 driving lessons to read before practical classes (progress is saved on the student's phone), with the school map, roundabout diagram and practice videos
-- An 8-question practice quiz
+## Settings: `js/config.js`
+- `whatsapp`, `phone`: the instructor's numbers (digits with country code). WhatsApp and call buttons appear once set.
+- `formEndpoint`: where the consultation form is sent (e.g. a Formspree form URL or a Google Apps Script web app that writes to a Google Sheet). If empty, the form opens WhatsApp with the details filled in.
+- `googleAdsId` and `conversions`: Google Ads conversion tracking. Form submissions, WhatsApp taps and call taps are reported as conversions.
+- `fees`: prices used by the guide.
 
-## Instructor dashboard: `/admin`
-Log in with `ADMIN_PASSWORD`. The dashboard shows every registration and lets the instructor:
-- open WhatsApp with a ready-made greeting (this marks the student as *contacted*) or call them
-- set a status: new → contacted → enrolled → completed / cancelled
-- add private notes (payments, class times)
-- search, filter, export to CSV, or delete a registration
+## Content
+- Guide texts: `js/data/i18n.js`, `hub-i18n.js`, `ui-i18n.js`, `game-i18n.js`
+- Lesson pictures and animations: `js/data/scenes.js`
+- Landing page text: edit `yousef-ismail-m-basal/index.html` directly
+- Success stories: add photos to `/reviews/` and list them in `js/data/reviews.js` (only real students who agreed). While empty, clearly marked sample reviews are shown.
 
 ## Run locally
 ```bash
-npm install
-cp .env.example .env.local   # then set ADMIN_PASSWORD
-npm run dev
+python3 -m http.server 8000
 ```
-Open http://localhost:3000 for students and http://localhost:3000/admin for the instructor.
-
-## Deploy (free) on Vercel
-1. Import this GitHub repo at vercel.com.
-2. Add a free Postgres database (Vercel → Storage → Neon, or neon.tech / supabase.com) and set `DATABASE_URL`. The table is created automatically.
-3. Set `ADMIN_PASSWORD` and `NEXT_PUBLIC_TEACHER_WHATSAPP`.
-4. Share the deployed URL with students.
-
-Without `DATABASE_URL`, registrations are saved to `data/registrations.json`. That works for local use or a VPS, but **not** on Vercel, where the disk is not persistent.
-
-## Editing content
-- Fees and WhatsApp number: `lib/config.js`
-- Guide texts in all languages: `lib/i18n.js`
-- Registration form texts: `lib/reg-i18n.js`
-- Images and videos: `public/assets/`
+Then open http://localhost:8000 and http://localhost:8000/yousef-ismail-m-basal/
