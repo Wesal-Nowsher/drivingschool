@@ -6,7 +6,7 @@ export const CONFIG = {
 
   // WhatsApp and phone numbers with country code, digits only, e.g. "97333123456".
   // Leave "" until known: buttons that need them are hidden or greyed out.
-  whatsapp: "",
+  whatsapp: "97333382965",
   phone: "", // defaults to the WhatsApp number when empty
 
   // Where form submissions are sent. Any service that accepts a JSON POST works,
