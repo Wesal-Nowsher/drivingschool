@@ -13,6 +13,13 @@ const gov = F.eyeTest + F.learningBook + F.examAppointment + F.licenseCard;
 const classes = F.hours * F.perHour;
 const total = gov + classes;
 
+const PAYMENTS = [
+  { title: "1st payment", when: "At the traffic office, on your eye test day", items: [["Eye test", F.eyeTest], ["Learning book", F.learningBook]] },
+  { title: "2nd payment", when: "To your instructor, during your driving classes", items: [[`Training classes (${F.hours} hours)`, F.hours * F.perHour]], note: `${F.perHour} BD per class. Pay class by class, or all at once.` },
+  { title: "3rd payment", when: "When your training is finished", items: [["Exam test appointment", F.examAppointment]] },
+  { title: "4th payment", when: "Only after you pass the test", items: [["Driving licence card", F.licenseCard]] },
+];
+
 const STEPS = [
   ["Book a consultation", "Send the form or message on WhatsApp. We explain the process and plan your classes."],
   ["Eye test & learning licence", "Book on the Mawaeid app, pass the eye test and collect your learning book and licence."],
@@ -100,48 +107,37 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* pricing */}
+      {/* pricing: 4 payments in the order you make them */}
       <section className="l-sec" id="pricing">
-        <div className="l-in">
+        <div className="l-in l-narrow">
           <p className="l-eyebrow">Pricing</p>
-          <h2>Clear fees, no surprises</h2>
-          <div className="l-prices">
-            <div className="l-price">
-              <h3>Government fees</h3>
-              <p className="l-amount">{gov} <small>BD</small></p>
-              <p className="l-muted">Paid to the General Directorate of Traffic</p>
-              <ul>
-                <li><span>Eye test</span><b>{F.eyeTest} BD</b></li>
-                <li><span>Learning book</span><b>{F.learningBook} BD</b></li>
-                <li><span>Exam appointment</span><b>{F.examAppointment} BD</b></li>
-                <li><span>Licence card (after passing)</span><b>{F.licenseCard} BD</b></li>
-              </ul>
-            </div>
-            <div className="l-price l-featured">
-              <span className="l-tag">Complete package</span>
-              <h3>Everything included</h3>
-              <p className="l-amount">{total} <small>BD</small></p>
-              <p className="l-muted">From eye test to licence card</p>
-              <ul>
-                <li><span>Government fees</span><b>{gov} BD</b></li>
-                <li><span>{F.hours} hours of classes</span><b>{classes} BD</b></li>
-                <li><span>Free interactive learning guide</span><b>✓</b></li>
-                <li><span>Pay at once or per class</span><b>✓</b></li>
-              </ul>
-              <a href="#book" className="l-btn l-btn-white l-full">Book consultation</a>
-            </div>
-            <div className="l-price">
-              <h3>Driving classes</h3>
-              <p className="l-amount">{classes} <small>BD</small></p>
-              <p className="l-muted">Paid to your instructor</p>
-              <ul>
-                <li><span>Hours of practical training</span><b>{F.hours}</b></li>
-                <li><span>Price per hour</span><b>{F.perHour} BD</b></li>
-                <li><span>Automatic or manual</span><b>✓</b></li>
-                <li><span>Pay per class</span><b>✓</b></li>
-              </ul>
-            </div>
+          <h2>You pay in 4 simple steps</h2>
+          <p className="l-p">No big payment up front. You pay each part only when you reach that step.</p>
+          <ol className="l-pay">
+            {PAYMENTS.map((p, i) => {
+              const sum = p.items.reduce((s, x) => s + x[1], 0);
+              const running = PAYMENTS.slice(0, i + 1).reduce((s, q) => s + q.items.reduce((t, x) => t + x[1], 0), 0);
+              return (
+                <li key={p.title} className="l-pay-step">
+                  <div className="l-pay-head">
+                    <span className="l-pay-n">{i + 1}</span>
+                    <div className="l-pay-title"><h3>{p.title}</h3><p>{p.when}</p></div>
+                    <b className="l-pay-sum">{sum} BD</b>
+                  </div>
+                  <table className="l-pay-table"><tbody>
+                    {p.items.map(([label, v]) => <tr key={label}><td>{label}</td><td>{v} BD</td></tr>)}
+                  </tbody></table>
+                  {p.note && <p className="l-pay-note">{p.note}</p>}
+                  <p className="l-pay-run">Paid so far: <b>{running} BD</b></p>
+                </li>
+              );
+            })}
+          </ol>
+          <div className="l-pay-total">
+            <span>Total cost</span><b>{total} BD</b>
           </div>
+          <p className="l-muted l-pay-foot">Government fees are paid at the traffic office. The 7 BD per class is paid to your instructor, all at once or class by class.</p>
+          <a href="#book" className="l-btn l-btn-dark">Book a free consultation</a>
         </div>
       </section>
 
