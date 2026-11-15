@@ -10,6 +10,11 @@ No framework and no build step. Any static host (Vercel, Netlify, GitHub Pages) 
 
 `/yousef`, `/yousef-ismail-m-basal` redirect to `/`, and `/v1` to `/guide` (see `vercel.json`).
 
+## Languages (landing page)
+English (`/`), Arabic (`/ar`), Urdu (`/ur`), Pashto (`/ps`), Hindi (`/hi`), Malayalam (`/ml`), Amharic (`/am`), Filipino (`/fil`) and Chinese (`/zh`).
+Texts live in `js/data/landing/<code>.js`: one list per language, in the same order as `en.js` (line N matches `data-i18n="tN"` in `index.html`).
+To change a text, edit the same line in every language file.
+
 ## Settings: `js/config.js`
 - `whatsapp`, `phone`: the instructor's numbers (digits with country code). WhatsApp and call buttons appear once set.
 - `formEndpoint`: where the consultation form is sent (e.g. a Formspree form URL or a Google Apps Script web app that writes to a Google Sheet). If empty, the form opens WhatsApp with the details filled in.

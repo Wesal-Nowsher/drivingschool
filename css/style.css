@@ -573,3 +573,42 @@ body:has(.l-page){background:#fff}
 .l-fab,.l-fab::before{background:#111}
 .l-fab::before{opacity:.35}
 .l-fab:hover{background:#333}
+
+/* ===== landing: language switcher ===== */
+.l-langsw{position:relative;margin-inline-start:auto}
+.l-links + .l-langsw{margin-inline-start:0}
+.l-lang-btn{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 12px;border:1px solid #d5d5d5;border-radius:10px;background:#fff;color:#111;font:600 14px system-ui,sans-serif;cursor:pointer}
+.l-lang-btn:hover{border-color:#111}
+.l-lang-menu{position:absolute;top:calc(100% + 6px);inset-inline-end:0;z-index:60;list-style:none;margin:0;padding:6px;background:#fff;border:1px solid #e5e5e5;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.12);min-width:170px}
+.l-lang-menu[hidden]{display:none}
+.l-lang-menu a{display:block;padding:9px 12px;border-radius:8px;color:#111;text-decoration:none;font-size:15px;text-align:start}
+.l-lang-menu a:hover{background:#f3f3f3}.l-lang-menu a.on{background:#111;color:#fff}
+@media (max-width:760px){.l-nav-in{gap:10px}.l-lang-btn span{max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.l-brand small{display:none}}
+@media (max-width:400px){.l-brand b{font-size:13px}}
+
+/* ===== landing: fonts per language ===== */
+:lang(ar) .l-page{font-family:"Noto Naskh Arabic",system-ui,sans-serif}
+:lang(ps) .l-page{font-family:"Noto Naskh Arabic",system-ui,sans-serif}
+:lang(ur) .l-page{font-family:"Noto Nastaliq Urdu","Noto Naskh Arabic",system-ui,sans-serif}
+:lang(hi) .l-page{font-family:"Noto Sans Devanagari",system-ui,sans-serif}
+:lang(ml) .l-page{font-family:"Noto Sans Malayalam",system-ui,sans-serif}
+:lang(am) .l-page{font-family:"Noto Sans Ethiopic",system-ui,sans-serif}
+:lang(zh) .l-page{font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif}
+:lang(ar) .l-page,:lang(ps) .l-page{line-height:1.8}
+:lang(ur) .l-page{line-height:2.2}
+:lang(hi) .l-page,:lang(ml) .l-page,:lang(am) .l-page{line-height:1.75}
+:lang(ur) .l-page :is(h1,h2,h3,b,summary,.l-btn,label,p,li,td,span,small){line-height:2.1}
+:lang(ar) .l-page :is(h1,h2,h3),:lang(ps) .l-page :is(h1,h2,h3){line-height:1.6}
+:lang(hi) .l-page :is(h1,h2,h3),:lang(ml) .l-page :is(h1,h2,h3),:lang(am) .l-page :is(h1,h2,h3){line-height:1.45}
+:lang(ur) .l-page h1{font-size:clamp(26px,3.8vw,42px)}
+:lang(ml) .l-page h1{font-size:clamp(24px,3.6vw,40px)}
+.l-page :is(.l-eyebrow){letter-spacing:.08em}
+:is(:lang(ar),:lang(ur),:lang(ps),:lang(hi),:lang(ml),:lang(am),:lang(zh)) .l-eyebrow{text-transform:none;letter-spacing:0;font-size:14px}
+/* names, numbers, prices and the phone field stay in Latin script */
+.l-brand b,.l-amount,.l-ptable td:last-child,.l-stat b,.l-step-n,.l-pay-n,.l-timeline li::before{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+/* right-to-left fixes */
+[dir=rtl] .l-ptable th:last-child,[dir=rtl] .l-ptable td:last-child{text-align:left}
+[dir=rtl] .l-faq summary::after{margin-right:auto}
+[dir=rtl] .l-sample{left:auto;right:22px}
+.l-page .l-lang-menu a{line-height:1.4;padding:8px 12px}
+.l-page .l-lang-btn span{line-height:1.2}

@@ -2,6 +2,9 @@
 import { CONFIG, telNumber } from "./config.js";
 import { REVIEWS, SAMPLE_REVIEWS } from "./data/reviews.js";
 import { initTracking, trackContactLinks, submitLead } from "./track.js";
+import { currentLang, applyLang, K } from "./lang.js";
+
+const t = await applyLang(currentLang());
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
@@ -27,10 +30,11 @@ form.addEventListener("submit", async (e) => {
   if (d.website) return; // bot trap
   err.hidden = true;
   const name = (d.name || "").trim(), phone = (d.phone || "").trim(), email = (d.email || "").trim();
-  if (!name || phone.replace(/\D/g, "").length < 7) return showErr("Please enter your name and WhatsApp number.");
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showErr("Please enter a valid email address.");
+  if (!name || phone.replace(/\D/g, "").length < 7) return showErr(t[K.errName]);
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showErr(t[K.errEmail]);
   const btn = form.querySelector("button[type=submit]");
-  btn.disabled = true; btn.textContent = "Sending…";
+  const label = btn.textContent;
+  btn.disabled = true; btn.textContent = t[K.sending];
   const lead = { name, phone, email, notes: (d.notes || "").trim(), source: "landing" };
   const waText = `Hello, I would like a free consultation.\nName: ${name}\nPhone: ${phone}${email ? `\nEmail: ${email}` : ""}${lead.notes ? `\nMessage: ${lead.notes}` : ""}`;
   try {
@@ -38,8 +42,8 @@ form.addEventListener("submit", async (e) => {
     form.hidden = true;
     document.getElementById("book-done").hidden = false;
   } catch {
-    btn.disabled = false; btn.textContent = "Book consultation";
-    showErr(CONFIG.formEndpoint || CONFIG.whatsapp ? "Something went wrong. Please try again." : "Online booking is not set up yet. Please call or message your instructor directly.");
+    btn.disabled = false; btn.textContent = label;
+    showErr(CONFIG.formEndpoint || CONFIG.whatsapp ? t[K.failed] : "Online booking is not set up yet. Please call or message your instructor directly.");
   }
 });
 
@@ -72,8 +76,8 @@ const list = document.getElementById("reviews-list");
 list.innerHTML = REVIEWS.length
   ? REVIEWS.map((r) => `<figure class="l-review"><div class="l-review-imgs"><img src="${esc(r.selfie)}" alt="${esc(r.name)}" loading="lazy"><img src="${esc(r.licence)}" alt="${esc(r.name)}'s driving licence" loading="lazy"></div>
       <div class="l-stars" aria-label="5 out of 5">★★★★★</div><blockquote>“${esc(r.text)}”</blockquote><figcaption>${esc(r.name)}</figcaption></figure>`).join("")
-  : SAMPLE_REVIEWS.map((r) => `<figure class="l-review"><span class="l-sample">Sample</span><div class="l-review-imgs">${selfie(r)}${licence(r)}</div>
-      <div class="l-stars" aria-label="5 out of 5">★★★★★</div><blockquote>“${esc(r.text)}”</blockquote><figcaption>${esc(r.name)}</figcaption></figure>`).join("");
+  : SAMPLE_REVIEWS.map((r, i) => `<figure class="l-review"><span class="l-sample">${esc(t[K.sample])}</span><div class="l-review-imgs">${selfie(r)}${licence(r)}</div>
+      <div class="l-stars" aria-label="5/5">★★★★★</div><blockquote>“${esc(t[K.review + i] || r.text)}”</blockquote><figcaption>${esc(r.name)}</figcaption></figure>`).join("");
 
 // --- sticky bar: hide while the form is on screen ---
 const sticky = document.getElementById("l-sticky");

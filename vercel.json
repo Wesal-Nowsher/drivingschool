@@ -27,5 +27,11 @@
       "destination": "/",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/:lang(ar|ur|ps|hi|ml|am|fil|zh)",
+      "destination": "/"
+    }
   ]
 }
