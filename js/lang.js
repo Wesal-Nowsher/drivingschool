@@ -51,6 +51,7 @@ export async function applyLang(code) {
   let canon = document.querySelector('link[rel="canonical"]');
   if (!canon) { canon = document.createElement("link"); canon.rel = "canonical"; document.head.appendChild(canon); }
   canon.href = location.origin + langUrl(lang.code);
+  document.querySelectorAll('a[href^="/guide"]').forEach((a) => { a.href = `/guide?lang=${lang.code}`; });
   save(lang.code);
   buildSwitcher(lang, t);
   return t;

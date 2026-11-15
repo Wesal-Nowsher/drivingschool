@@ -612,3 +612,9 @@ body:has(.l-page){background:#fff}
 [dir=rtl] .l-sample{left:auto;right:22px}
 .l-page .l-lang-menu a{line-height:1.4;padding:8px 12px}
 .l-page .l-lang-btn span{line-height:1.2}
+/* guide: extra scripts */
+:lang(ps) body{font-family:"Noto Naskh Arabic",system-ui,sans-serif;line-height:1.8}
+:lang(am) body{font-family:"Noto Sans Ethiopic",system-ui,sans-serif;line-height:1.75}
+:lang(ps) :is(h1,h2,h3,b,small,p,li,label,.btn,.chip,.lead,.kicker){line-height:1.8}
+:lang(am) :is(h1,h2,h3,b,small,p,li,label,.btn,.chip,.lead,.kicker){line-height:1.7}
+:lang(ps) .kicker,:lang(am) .kicker,:lang(ps) .s-kicker,:lang(am) .s-kicker{text-transform:none;letter-spacing:0}

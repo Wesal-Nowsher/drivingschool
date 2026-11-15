@@ -5,6 +5,14 @@ import { HUB } from "./data/hub-i18n.js";
 import { UI } from "./data/ui-i18n.js";
 import { GAME, LESSON_QUESTIONS } from "./data/game-i18n.js";
 import { SCENES } from "./data/scenes.js";
+import PS from "./data/guide-more/ps.js";
+import AM from "./data/guide-more/am.js";
+import FIL from "./data/guide-more/fil.js";
+
+// Extra guide languages (Pashto, Amharic, Filipino) live in their own files.
+for (const [code, d] of [["ps", PS], ["am", AM], ["fil", FIL]]) {
+  I18N[code] = d.main; HUB[code] = d.hub; UI[code] = d.ui; GAME[code] = d.game;
+}
 import { initTracking, trackContactLinks } from "./track.js";
 
 const F = CONFIG.fees;
@@ -40,6 +48,9 @@ function toHash(v) {
 
 // ---------- state ----------
 let lang = store.get("lang");
+// Coming from the landing page with ?lang=xx: start in that language.
+const qLang = new URLSearchParams(location.search).get("lang");
+if (I18N[qLang]) { lang = qLang; store.set("lang", lang); }
 if (!I18N[lang]) lang = null;
 let view = parseHash(location.hash);
 let game = null; // per-lesson game state

@@ -4,7 +4,7 @@ No framework and no build step. Any static host (Vercel, Netlify, GitHub Pages) 
 
 | Address | File | What it is |
 |---|---|---|
-| `/guide` | `guide/index.html` + `js/guide.js` | Student guide: language, payment details, process guide, game-style driving lessons (6 languages) |
+| `/guide` | `guide/index.html` + `js/guide.js` | Student guide: language, payment details, process guide, game-style driving lessons (9 languages; Pashto, Amharic and Filipino texts in `js/data/guide-more/`) |
 | `/` | `index.html` + `js/landing.js` | Instructor landing page for Google Ads: hero with consultation form, pricing in 4 payments, reviews, FAQ |
 | `/privacy` | `privacy/index.html` | Privacy policy (required for Google Ads lead forms) |
 

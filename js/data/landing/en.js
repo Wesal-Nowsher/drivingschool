@@ -88,7 +88,7 @@ export default [
  "Reversing & parking",
  "Exam reverse area and parking rules.",
  "Try the free interactive guide",
- "Fees, the full process and game-style lessons in English, Arabic, Urdu, Hindi, Malayalam and Chinese.",
+ "Fees, the full process and game-style lessons in English, Arabic, Urdu, Pashto, Hindi, Malayalam, Amharic, Filipino and Chinese.",
  "Open guide",
  "Your first lesson",
  "What to expect on day one",
